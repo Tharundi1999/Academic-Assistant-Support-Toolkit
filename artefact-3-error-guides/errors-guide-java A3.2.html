@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Common Programming Errors & Fixes: Java</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #f6f7fa;
+      --card-bg: #ffffff;
+      --text: #101828;
+      --text-light: #5b6574;
+      --border: #dde2ea;
+      --sidebar-bg: #0d4a2a;
+      --accent: #a3e635;
+      --heading: #1b7d44;
+      --wrong: #b42318;
+      --wrong-bg: #fdecea;
+      --right: #127a4b;
+      --right-bg: #e3f6ec;
+      --code-bg: #0b1220;
+      --code-text: #e6edf6;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #0b1220;
+        --card-bg: #141d2e;
+        --text: #e6edf6;
+        --text-light: #9aa7b8;
+        --border: #263247;
+        --heading: #a3e635;
+        --wrong: #ff9d93;
+        --wrong-bg: #3a1d1b;
+        --right: #5fd3a0;
+        --right-bg: #10382b;
+        --code-bg: #060b14;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 100vh;
+    }
+
+    /* sidebar */
+    .sidebar {
+      background: var(--sidebar-bg);
+      color: white;
+      padding: 22px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .logo-row { display: flex; gap: 14px; align-items: center; }
+
+    .logo-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--accent);
+      color: var(--sidebar-bg);
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .logo-small { font-size: 0.9rem; }
+    .logo-big { font-size: 1.7rem; font-weight: bold; }
+
+    .search-box {
+      width: 100%;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+    .search-box::placeholder { color: #ddd; }
+
+    .menu { display: flex; flex-direction: column; gap: 2px; }
+
+    .menu-heading {
+      margin: 12px 0 4px;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .menu-item {
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-align: left;
+      color: white;
+      background: none;
+      border: none;
+      border-left: 4px solid transparent;
+      border-radius: 6px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .menu-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .menu-item.selected {
+      background: rgba(255, 255, 255, 0.17);
+      border-left-color: var(--accent);
+      font-weight: bold;
+    }
+
+    .no-match { margin: 0; font-size: 0.9rem; }
+
+    .print-button {
+      margin-top: auto;
+      font-family: inherit;
+      font-weight: bold;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .sidebar-note { margin: 0; font-size: 0.78rem; opacity: 0.75; }
+
+    button:focus, input:focus { outline: 3px solid #8ab4f8; outline-offset: 2px; }
+
+    /* main area */
+    .main { padding: 34px 40px 50px; max-width: 940px; }
+
+    .print-title { display: none; }
+
+    .page { display: none; }
+    .page.visible { display: block; }
+
+    .category-tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: bold;
+      padding: 2px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--heading);
+      color: var(--heading);
+    }
+
+    .counter { margin-left: 10px; color: var(--text-light); font-size: 0.88rem; }
+
+    .page h1 { font-size: 2.05rem; line-height: 1.2; margin: 10px 0 14px; }
+
+    .error-message {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      padding: 12px 16px;
+      border-left: 5px solid var(--accent);
+      margin-bottom: 22px;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .error-message small {
+      display: block;
+      color: #8aa0b8;
+      font-family: Arial, sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .summary { font-size: 1.2rem; line-height: 1.5; margin: 0 0 24px; }
+
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--heading); }
+
+    .card ul, .card ol { list-style: none; padding: 0; margin: 0; }
+    .card li { position: relative; padding-left: 24px; margin-bottom: 8px; }
+
+    .card ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 9px;
+      height: 9px;
+      background: var(--accent);
+    }
+
+    .card ol { counter-reset: step; }
+    .card ol li { counter-increment: step; padding-left: 36px; }
+    .card ol li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 1px;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: var(--sidebar-bg);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+    }
+
+    .code-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+
+    .code-box { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+    .wrong-box { border-color: var(--wrong); }
+    .right-box { border-color: var(--right); }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 0.92rem;
+    }
+    .wrong-box .code-header { background: var(--wrong-bg); color: var(--wrong); }
+    .right-box .code-header { background: var(--right-bg); color: var(--right); }
+
+    .code-box pre {
+      margin: 0;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-button {
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 2px 9px;
+      border-radius: 6px;
+      border: 1px solid currentColor;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .page-buttons { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
+    .page-buttons button {
+      font-family: inherit;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--heading);
+      background: none;
+      color: var(--heading);
+      cursor: pointer;
+      max-width: 49%;
+      text-align: left;
+    }
+
+    .hidden-text { position: absolute; left: -9999px; }
+
+    /* phones */
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .menu { max-height: 240px; overflow: auto; }
+      .main { padding: 22px 16px 40px; }
+      .two-columns, .code-compare { grid-template-columns: 1fr; }
+      .print-button { margin-top: 0; }
+    }
+
+    /* printing shows every error */
+    @media print {
+      .sidebar, .page-buttons { display: none; }
+      .layout { display: block; }
+      .main { padding: 0; max-width: none; }
+      body { background: white; color: black; }
+      .print-title { display: block; }
+      .page { display: block !important; margin-bottom: 24px; break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="logo-row">
+        <div class="logo-box">Java</div>
+        <div>
+          <div class="logo-small">Errors &amp; Fixes</div>
+          <div class="logo-big">Java</div>
+        </div>
+      </div>
+
+      <input class="search-box" id="searchBox" type="search" placeholder="Search, for example cannot find symbol" autocomplete="off">
+
+      <div class="menu" id="menu"></div>
+
+      <p class="no-match" id="noMatch" hidden>No match. Try fewer words, or ask a lab assistant.</p>
+
+      <button type="button" class="print-button" id="printButton">Print or save as PDF</button>
+
+      <p class="sidebar-note">
+        
+        Prepared by Tharundi Dunuwila.
+       
+      </p>
+    </div>
+
+    <div class="main">
+      <h1 class="print-title">Common Programming Errors & Fixes: Java</h1>
+      <div id="pages"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // To add an error, copy one block, paste it at the end of the list and change the text.
+    var DATA = {
+      errors: [
+      {
+        name: "cannot find symbol",
+        msg: "error: cannot find symbol",
+        cat: "Compile errors",
+        means: "The compiler does not recognise a name you used: a variable, a method or a class.",
+        causes: [
+          "A spelling or capital-letter difference (String, not string).",
+          "A variable used outside the block where it was declared.",
+          "A missing import for a class outside java.lang.",
+          "A method called with the wrong name or arguments."
+        ],
+        fix: [
+          "Read the lines under the error. “symbol:” gives the name and “location:” tells you where.",
+          "Check spelling and capitals. Java is case sensitive.",
+          "Declare the variable before you use it.",
+          "Add the import at the top of the file."
+        ],
+        wrong: "string name = \"Sam\";\nScanner in = new Scanner(System.in);",
+        right: "import java.util.Scanner;\n\nString name = \"Sam\";\nScanner in = new Scanner(System.in);"
+      },
+      {
+        name: "';' expected",
+        msg: "error: ';' expected / reached end of file while parsing",
+        cat: "Compile errors",
+        means: "A semicolon or a closing brace is missing, so the compiler ran out of code before the structure was complete.",
+        causes: [
+          "A missing ; at the end of a statement.",
+          "A missing } at the end of a method or class."
+        ],
+        fix: [
+          "Look at the line the error names and the line above it.",
+          "Check every { has a matching }. In VS Code, run Format Document (Shift+Alt+F) to see where a brace is missing.",
+          "Fix the first error first, then compile again."
+        ],
+        wrong: "int total = 5\nSystem.out.println(total);",
+        right: "int total = 5;\nSystem.out.println(total);"
+      },
+      {
+        name: "Public class and file name",
+        msg: "error: class Hello is public, should be declared in a file named Hello.java",
+        cat: "Compile errors",
+        means: "A public class must be saved in a file with exactly the same name, including capital letters.",
+        causes: [
+          "The file is called hello.java or Main.java but the class is Hello.",
+          "Two public classes in one file."
+        ],
+        fix: [
+          "Rename the file to match the public class, or rename the class.",
+          "Use only one public class per file.",
+          "Compile again with javac Hello.java."
+        ],
+        wrong: "// file: hello.java\npublic class Hello { }",
+        right: "// file: Hello.java\npublic class Hello { }"
+      },
+      {
+        name: "Lossy conversion",
+        msg: "error: incompatible types: possible lossy conversion from double to int",
+        cat: "Compile errors",
+        means: "You tried to put a value with decimals into a variable that holds only whole numbers.",
+        causes: [
+          "Dividing by a decimal and storing the result in an int.",
+          "Using Math.sqrt or Math.pow, which return double."
+        ],
+        fix: [
+          "Use a variable type that fits the value, such as double.",
+          "Or convert on purpose with a cast, if you want to drop the decimals."
+        ],
+        wrong: "int half = 7 / 2.0;",
+        right: "double half = 7 / 2.0;     // 3.5\nint whole = (int) (7 / 2.0); // 3"
+      },
+      {
+        name: "Missing return statement",
+        msg: "error: missing return statement",
+        cat: "Compile errors",
+        means: "A method that promises to return a value has a path through the code that ends without returning anything.",
+        causes: [
+          "An if without an else where only one path returns.",
+          "A return placed only inside a loop."
+        ],
+        fix: [
+          "Make sure every path through the method ends with a return.",
+          "If the method returns nothing, change its type to void."
+        ],
+        wrong: "static String grade(int mark) {\n    if (mark >= 50) {\n        return \"Pass\";\n    }\n}",
+        right: "static String grade(int mark) {\n    if (mark >= 50) {\n        return \"Pass\";\n    } else {\n        return \"Fail\";\n    }\n}"
+      },
+      {
+        name: "Static context",
+        msg: "error: non-static method greet() cannot be referenced from a static context",
+        cat: "Compile errors",
+        means: "main is static, so it cannot call an instance method directly without an object.",
+        causes: [
+          "A method written without the word static is called from main."
+        ],
+        fix: [
+          "Add static to the method if it does not need an object.",
+          "Or create an object first and call the method on it."
+        ],
+        wrong: "public static void main(String[] args) {\n    greet();\n}\nvoid greet() { }",
+        right: "public static void main(String[] args) {\n    greet();\n}\nstatic void greet() { }"
+      },
+      {
+        name: "Variable might not have been initialized",
+        msg: "error: variable total might not have been initialized",
+        cat: "Compile errors",
+        means: "A local variable is used before it has been given a value.",
+        causes: [
+          "A variable declared but not assigned.",
+          "A value assigned only inside an if."
+        ],
+        fix: [
+          "Give the variable a starting value when you declare it."
+        ],
+        wrong: "int total;\ntotal = total + 5;",
+        right: "int total = 0;\ntotal = total + 5;"
+      },
+      {
+        name: "Could not find or load main class",
+        msg: "Error: Could not find or load main class Hello",
+        cat: "Compile errors",
+        means: "Java was told to run a class it cannot find. The program may be unsaved, uncompiled, or run from the wrong folder.",
+        causes: [
+          "Running java from a different folder than the one that holds the .class file.",
+          "Typing java Hello.java or java Hello.class instead of java Hello.",
+          "The class name does not match the file name, or the file has not been compiled."
+        ],
+        fix: [
+          "Open the terminal in the folder that holds your file (use cd).",
+          "Compile first with javac Hello.java and check that Hello.class appears.",
+          "Run with java Hello, with no extension, and check the capital letters."
+        ],
+        wrong: "javac Hello.java\njava Hello.class",
+        right: "javac Hello.java\njava Hello"
+      },
+      {
+        name: "Reached end of file while parsing",
+        msg: "error: reached end of file while parsing",
+        cat: "Compile errors",
+        means: "The compiler ran out of file but there was still an open bracket. A closing brace } is missing.",
+        causes: [
+          "A missing } at the end of a method or class.",
+          "Braces that are not matched after you copied or deleted code."
+        ],
+        fix: [
+          "Look at the end of the file. Count the { and } and make sure they match.",
+          "Use your editor's auto-indent. A line that is indented wrongly shows where the brace is missing."
+        ],
+        wrong: "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hi\");\n    }",
+        right: "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hi\");\n    }\n}"
+      },
+      {
+        name: "Incompatible types",
+        msg: "error: incompatible types: String cannot be converted to int",
+        cat: "Compile errors",
+        means: "You tried to store one kind of value in a variable of another kind, and Java will not convert it for you.",
+        causes: [
+          "Putting text into an int variable.",
+          "Assigning the result of nextLine() to a number.",
+          "Using the wrong return type."
+        ],
+        fix: [
+          "Check the type on both sides of the = sign.",
+          "Convert text to a number with Integer.parseInt(text) or read with nextInt().",
+          "Change the variable type if the value really is text."
+        ],
+        wrong: "Scanner in = new Scanner(System.in);\nint age = in.nextLine();",
+        right: "Scanner in = new Scanner(System.in);\nint age = Integer.parseInt(in.nextLine());"
+      },
+      {
+        name: "Unreachable statement",
+        msg: "error: unreachable statement",
+        cat: "Compile errors",
+        means: "You wrote code after a line that always leaves the method or loop, so it can never run.",
+        causes: [
+          "Code placed after return, break or continue.",
+          "Code after a loop that never ends, such as while (true)."
+        ],
+        fix: [
+          "Delete the line or move it above the return or break.",
+          "If it should run in some cases, put the return inside an if."
+        ],
+        wrong: "int add(int a, int b) {\n    return a + b;\n    System.out.println(\"done\");\n}",
+        right: "int add(int a, int b) {\n    System.out.println(\"done\");\n    return a + b;\n}"
+      },
+      {
+        name: "NullPointerException",
+        msg: "Exception in thread \"main\" java.lang.NullPointerException",
+        cat: "Exceptions at run time",
+        means: "You used an object variable that does not point to an object (its value is null).",
+        causes: [
+          "A variable declared but never given an object.",
+          "An array of objects, where every item starts as null.",
+          "A method that returned null."
+        ],
+        fix: [
+          "Read the stack trace and find the first line that names your own file and a line number.",
+          "On that line, find which variable is null.",
+          "Give it a value before you use it, or check for null first."
+        ],
+        wrong: "String text = null;\nSystem.out.println(text.length());",
+        right: "String text = \"hello\";\nSystem.out.println(text.length());"
+      },
+      {
+        name: "ArrayIndexOutOfBoundsException",
+        msg: "java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5",
+        cat: "Exceptions at run time",
+        means: "You asked for a position in an array that does not exist.",
+        causes: [
+          "Arrays start at 0, so the last position is length minus 1.",
+          "A loop that uses <= instead of <."
+        ],
+        fix: [
+          "Loop with < and the array’s length.",
+          "Check indexes such as i + 1 never reach the length."
+        ],
+        wrong: "int[] nums = {4, 8, 15};\nfor (int i = 0; i <= nums.length; i++) {\n    System.out.println(nums[i]);\n}",
+        right: "int[] nums = {4, 8, 15};\nfor (int i = 0; i < nums.length; i++) {\n    System.out.println(nums[i]);\n}"
+      },
+      {
+        name: "NumberFormatException",
+        msg: "java.lang.NumberFormatException: For input string: \"abc\"",
+        cat: "Exceptions at run time",
+        means: "Text that is not a number was converted to a number.",
+        causes: [
+          "Integer.parseInt or Double.parseDouble on text with letters or spaces.",
+          "An empty string."
+        ],
+        fix: [
+          "Check the text first, or catch the exception and ask again."
+        ],
+        wrong: "int n = Integer.parseInt(\"abc\");",
+        right: "try {\n    int n = Integer.parseInt(text);\n} catch (NumberFormatException e) {\n    System.out.println(\"Please type a whole number.\");\n}"
+      },
+      {
+        name: "ArithmeticException",
+        msg: "java.lang.ArithmeticException: / by zero",
+        cat: "Exceptions at run time",
+        means: "An integer was divided by zero.",
+        causes: [
+          "A counter or total that is still 0.",
+          "A divisor that comes from user input."
+        ],
+        fix: [
+          "Check the divisor before dividing."
+        ],
+        wrong: "int average = total / count;",
+        right: "int average = 0;\nif (count != 0) {\n    average = total / count;\n}"
+      },
+      {
+        name: "Scanner problems",
+        msg: "java.util.InputMismatchException / a line is skipped",
+        cat: "Exceptions at run time",
+        means: "The Scanner method does not match what was typed, or nextInt() left the end of the line behind.",
+        causes: [
+          "nextInt() used when the user typed text.",
+          "nextLine() directly after nextInt(), which reads an empty line."
+        ],
+        fix: [
+          "Use the method that matches the type.",
+          "After nextInt() or nextDouble(), call nextLine() once to clear the line.",
+          "Check with hasNextInt() before reading."
+        ],
+        wrong: "int age = in.nextInt();\nString name = in.nextLine();",
+        right: "int age = in.nextInt();\nin.nextLine();   // clears the end of the line\nString name = in.nextLine();"
+      },
+      {
+        name: "StackOverflowError",
+        msg: "java.lang.StackOverflowError",
+        cat: "Exceptions at run time",
+        means: "A method called itself so many times that the program ran out of memory for calls.",
+        causes: [
+          "A recursive method with no stopping case.",
+          "A stopping case that is never reached."
+        ],
+        fix: [
+          "Add a base case that returns without calling the method again.",
+          "Check that each call moves closer to the base case."
+        ],
+        wrong: "static int count(int n) {\n    return count(n - 1);\n}",
+        right: "static int count(int n) {\n    if (n <= 0) {\n        return 0;\n    }\n    return count(n - 1);\n}"
+      },
+      {
+        name: "IndexOutOfBoundsException (ArrayList)",
+        msg: "Exception in thread \"main\" java.lang.IndexOutOfBoundsException: Index 3 out of bounds for length 3",
+        cat: "Exceptions at run time",
+        means: "You asked an ArrayList for a position that does not exist. Positions start at 0, so a list of 3 items has positions 0, 1 and 2.",
+        causes: [
+          "Using list.size() as an index.",
+          "A loop that uses <= instead of <.",
+          "Removing items from the list while looping over it."
+        ],
+        fix: [
+          "Read the message: it gives the index you asked for and the length.",
+          "Loop with i < list.size().",
+          "Check list.isEmpty() before list.get(0)."
+        ],
+        wrong: "ArrayList<String> names = new ArrayList<>();\nnames.add(\"Sam\");\nnames.add(\"Ana\");\nSystem.out.println(names.get(names.size()));",
+        right: "ArrayList<String> names = new ArrayList<>();\nnames.add(\"Sam\");\nnames.add(\"Ana\");\nSystem.out.println(names.get(names.size() - 1));"
+      },
+      {
+        name: "Comparing text with ==",
+        msg: "if (answer == \"yes\") is never true",
+        cat: "Logic mistakes",
+        means: "In Java, == checks whether two String variables are the same object, not whether they hold the same text.",
+        causes: [
+          "Using == or != to compare Strings."
+        ],
+        fix: [
+          "Use equals() to compare text.",
+          "Use equalsIgnoreCase() to ignore capital letters."
+        ],
+        wrong: "if (answer == \"yes\") {\n    System.out.println(\"OK\");\n}",
+        right: "if (answer.equals(\"yes\")) {\n    System.out.println(\"OK\");\n}"
+      },
+      {
+        name: "Integer division",
+        msg: "No error shown. 7 / 2 gives 3, not 3.5.",
+        cat: "Logic mistakes",
+        means: "When both numbers are int, Java divides and throws away the decimal part.",
+        causes: [
+          "Dividing two int values and storing the result in a double.",
+          "Calculating an average with int totals."
+        ],
+        fix: [
+          "Make at least one of the numbers a double: 7 / 2.0 or (double) total / count.",
+          "Cast before dividing. (double) (total / count) is too late."
+        ],
+        wrong: "int total = 7;\nint count = 2;\ndouble avg = total / count;     // 3.0",
+        right: "int total = 7;\nint count = 2;\ndouble avg = (double) total / count;   // 3.5"
+      }
+      ],
+      read: {
+        title: "How to read a Java error message",
+        intro: "Compile errors and run-time exceptions look different. Read the first one first.",
+        snip: "Exception in thread \"main\" java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5\n    at Main.main(Main.java:7)",
+        points: [
+          "The first line gives the exception type and a short explanation.",
+          "The first “at” line that names your own file shows the line number, here Main.java line 7.",
+          "Compile errors look like Main.java:7: error: ';' expected, with the file, the line and the problem.",
+          "Fix the first error first. Later errors are often caused by it."
+        ]
+      }
+    };
+
+    var errors = DATA.errors;
+    var howToRead = DATA.read;
+    var pagesDiv = document.getElementById("pages");
+    var menuDiv = document.getElementById("menu");
+    var searchBox = document.getElementById("searchBox");
+    var noMatch = document.getElementById("noMatch");
+
+    var pages = {};
+    var menuButtons = {};
+    var pageIds = ["start"];
+    for (var i = 0; i < errors.length; i++) {
+      pageIds.push("error" + i);
+    }
+
+    function makeElement(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) {
+        el.className = className;
+      }
+      if (text) {
+        el.textContent = text;
+      }
+      return el;
+    }
+
+    function makeList(type, items) {
+      var list = document.createElement(type);
+      for (var i = 0; i < items.length; i++) {
+        list.appendChild(makeElement("li", "", items[i]));
+      }
+      return list;
+    }
+
+    function copyCode(text, button) {
+      var oldText = button.textContent;
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.className = "hidden-text";
+      document.body.appendChild(textarea);
+      textarea.select();
+      var worked = false;
+      try {
+        worked = document.execCommand("copy");
+      } catch (e) {
+        worked = false;
+      }
+      document.body.removeChild(textarea);
+      button.textContent = worked ? "Copied" : "Select and copy";
+      setTimeout(function () {
+        button.textContent = oldText;
+      }, 1600);
+    }
+
+    function makeCodeBox(boxClass, label, code) {
+      var box = makeElement("div", "code-box " + boxClass);
+      var header = makeElement("div", "code-header");
+      header.appendChild(makeElement("span", "", label));
+
+      var button = makeElement("button", "copy-button", "Copy");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        copyCode(code, button);
+      });
+      header.appendChild(button);
+
+      var pre = makeElement("pre");
+      pre.appendChild(makeElement("code", "", code));
+      box.appendChild(header);
+      box.appendChild(pre);
+      return box;
+    }
+
+    function makeNavButton(id, label, arrowFirst) {
+      var button = makeElement("button", "", arrowFirst ? "← " + label : label + " →");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    function makePageButtons(previousId, previousLabel, nextId, nextLabel) {
+      var row = makeElement("div", "page-buttons");
+      if (previousId) {
+        row.appendChild(makeNavButton(previousId, previousLabel, true));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      if (nextId) {
+        row.appendChild(makeNavButton(nextId, nextLabel, false));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      return row;
+    }
+
+    // the start page
+    var startPage = makeElement("div", "page");
+    startPage.appendChild(makeElement("span", "category-tag", "Start here"));
+    startPage.appendChild(makeElement("h1", "", howToRead.title));
+    startPage.appendChild(makeElement("p", "summary", howToRead.intro));
+
+    var example = makeElement("div", "error-message");
+    example.appendChild(makeElement("small", "", "Example"));
+    example.appendChild(document.createTextNode(howToRead.snip));
+    startPage.appendChild(example);
+
+    var lookCard = makeElement("div", "card");
+    lookCard.appendChild(makeElement("h2", "", "What to look at"));
+    lookCard.appendChild(makeList("ul", howToRead.points));
+    startPage.appendChild(lookCard);
+
+    var chooseText = makeElement("p", "summary", "Choose an error from the list to see what it means, why it happens and how to fix it.");
+    chooseText.style.fontSize = "1rem";
+    chooseText.style.marginTop = "20px";
+    chooseText.style.color = "var(--text-light)";
+    startPage.appendChild(chooseText);
+
+    startPage.appendChild(makePageButtons(null, null, "error0", errors[0].name));
+    pages["start"] = startPage;
+
+    // one page for each error
+    for (var n = 0; n < errors.length; n++) {
+      var error = errors[n];
+      var page = makeElement("div", "page");
+
+      page.appendChild(makeElement("span", "category-tag", error.cat));
+      page.appendChild(makeElement("span", "counter", (n + 1) + " of " + errors.length));
+      page.appendChild(makeElement("h1", "", error.name));
+
+      var messageBox = makeElement("div", "error-message");
+      messageBox.appendChild(makeElement("small", "", "You will see"));
+      messageBox.appendChild(document.createTextNode(error.msg));
+      page.appendChild(messageBox);
+
+      page.appendChild(makeElement("p", "summary", error.means));
+
+      var causesCard = makeElement("div", "card");
+      causesCard.appendChild(makeElement("h2", "", "Why it happens"));
+      causesCard.appendChild(makeList("ul", error.causes));
+
+      var fixCard = makeElement("div", "card");
+      fixCard.appendChild(makeElement("h2", "", "How to fix it"));
+      fixCard.appendChild(makeList("ol", error.fix));
+
+      var columns = makeElement("div", "two-columns");
+      columns.appendChild(causesCard);
+      columns.appendChild(fixCard);
+      page.appendChild(columns);
+
+      if (error.wrong) {
+        var compare = makeElement("div", "code-compare");
+        compare.appendChild(makeCodeBox("wrong-box", "Wrong", error.wrong));
+        compare.appendChild(makeCodeBox("right-box", "Right", error.right));
+        page.appendChild(compare);
+      }
+
+      var previousId = "start";
+      var previousLabel = "How to read an error";
+      if (n > 0) {
+        previousId = "error" + (n - 1);
+        previousLabel = errors[n - 1].name;
+      }
+      var nextId = null;
+      var nextLabel = null;
+      if (n < errors.length - 1) {
+        nextId = "error" + (n + 1);
+        nextLabel = errors[n + 1].name;
+      }
+      page.appendChild(makePageButtons(previousId, previousLabel, nextId, nextLabel));
+
+      pages["error" + n] = page;
+    }
+
+    for (var p = 0; p < pageIds.length; p++) {
+      pagesDiv.appendChild(pages[pageIds[p]]);
+    }
+
+    // the menu on the left
+    var headings = {};
+    var categoryItems = {};
+    var categories = [];
+    var searchText = {};
+
+    var startButton = makeElement("button", "menu-item", "Start here: how to read an error");
+    startButton.type = "button";
+    startButton.addEventListener("click", function () {
+      showPage("start");
+    });
+    menuDiv.appendChild(startButton);
+    menuButtons["start"] = startButton;
+
+    function makeMenuButton(id, name) {
+      var button = makeElement("button", "menu-item", name);
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    for (var m = 0; m < errors.length; m++) {
+      var item = errors[m];
+      var id = "error" + m;
+
+      if (!headings[item.cat]) {
+        headings[item.cat] = makeElement("h3", "menu-heading", item.cat);
+        categoryItems[item.cat] = [];
+        categories.push(item.cat);
+        menuDiv.appendChild(headings[item.cat]);
+      }
+
+      menuButtons[id] = makeMenuButton(id, item.name);
+      menuDiv.appendChild(menuButtons[id]);
+      categoryItems[item.cat].push(id);
+      searchText[id] = (item.name + " " + item.msg + " " + item.cat + " " + item.means).toLowerCase();
+    }
+
+    function showPage(id) {
+      for (var k = 0; k < pageIds.length; k++) {
+        var isChosen = (pageIds[k] === id);
+        pages[pageIds[k]].classList.toggle("visible", isChosen);
+        menuButtons[pageIds[k]].classList.toggle("selected", isChosen);
+      }
+      try {
+        history.replaceState(null, "", "#" + id);
+      } catch (e) {
+        // preview windows do not allow this
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // search: every word typed must be found in the error text
+    searchBox.addEventListener("input", function () {
+      var words = searchBox.value.toLowerCase().split(" ");
+      var shown = 0;
+
+      for (var c = 0; c < categories.length; c++) {
+        var category = categories[c];
+        var anyShown = false;
+
+        for (var j = 0; j < categoryItems[category].length; j++) {
+          var pageId = categoryItems[category][j];
+          var matches = true;
+          for (var w = 0; w < words.length; w++) {
+            if (words[w] !== "" && searchText[pageId].indexOf(words[w]) === -1) {
+              matches = false;
+            }
+          }
+          menuButtons[pageId].hidden = !matches;
+          if (matches) {
+            anyShown = true;
+            shown++;
+          }
+        }
+        headings[category].hidden = !anyShown;
+      }
+
+      noMatch.hidden = (shown !== 0 || searchBox.value.trim() === "");
+    });
+
+    document.getElementById("printButton").addEventListener("click", function () {
+      window.print();
+    });
+
+    var firstPage = "start";
+    var wanted = location.hash.slice(1);
+    if (pages[wanted]) {
+      firstPage = wanted;
+    }
+    showPage(firstPage);
+  </script>
+</body>
+</html>

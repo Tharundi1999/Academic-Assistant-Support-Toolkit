@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Common Programming Errors & Fixes: Python</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #f6f7fa;
+      --card-bg: #ffffff;
+      --text: #101828;
+      --text-light: #5b6574;
+      --border: #dde2ea;
+      --sidebar-bg: #14305f;
+      --accent: #ffd43b;
+      --heading: #1f5aa6;
+      --wrong: #b42318;
+      --wrong-bg: #fdecea;
+      --right: #127a4b;
+      --right-bg: #e3f6ec;
+      --code-bg: #0b1220;
+      --code-text: #e6edf6;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #0b1220;
+        --card-bg: #141d2e;
+        --text: #e6edf6;
+        --text-light: #9aa7b8;
+        --border: #263247;
+        --heading: #ffd43b;
+        --wrong: #ff9d93;
+        --wrong-bg: #3a1d1b;
+        --right: #5fd3a0;
+        --right-bg: #10382b;
+        --code-bg: #060b14;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 100vh;
+    }
+
+    /* sidebar */
+    .sidebar {
+      background: var(--sidebar-bg);
+      color: white;
+      padding: 22px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .logo-row { display: flex; gap: 14px; align-items: center; }
+
+    .logo-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--accent);
+      color: var(--sidebar-bg);
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 1.6rem;
+    }
+
+    .logo-small { font-size: 0.9rem; }
+    .logo-big { font-size: 1.7rem; font-weight: bold; }
+
+    .search-box {
+      width: 100%;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+    .search-box::placeholder { color: #ddd; }
+
+    .menu { display: flex; flex-direction: column; gap: 2px; }
+
+    .menu-heading {
+      margin: 12px 0 4px;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .menu-item {
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-align: left;
+      color: white;
+      background: none;
+      border: none;
+      border-left: 4px solid transparent;
+      border-radius: 6px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .menu-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .menu-item.selected {
+      background: rgba(255, 255, 255, 0.17);
+      border-left-color: var(--accent);
+      font-weight: bold;
+    }
+
+    .no-match { margin: 0; font-size: 0.9rem; }
+
+    .print-button {
+      margin-top: auto;
+      font-family: inherit;
+      font-weight: bold;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .sidebar-note { margin: 0; font-size: 0.78rem; opacity: 0.75; }
+
+    button:focus, input:focus { outline: 3px solid #8ab4f8; outline-offset: 2px; }
+
+    /* main area */
+    .main { padding: 34px 40px 50px; max-width: 940px; }
+
+    .print-title { display: none; }
+
+    .page { display: none; }
+    .page.visible { display: block; }
+
+    .category-tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: bold;
+      padding: 2px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--heading);
+      color: var(--heading);
+    }
+
+    .counter { margin-left: 10px; color: var(--text-light); font-size: 0.88rem; }
+
+    .page h1 { font-size: 2.05rem; line-height: 1.2; margin: 10px 0 14px; }
+
+    .error-message {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      padding: 12px 16px;
+      border-left: 5px solid var(--accent);
+      margin-bottom: 22px;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .error-message small {
+      display: block;
+      color: #8aa0b8;
+      font-family: Arial, sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .summary { font-size: 1.2rem; line-height: 1.5; margin: 0 0 24px; }
+
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--heading); }
+
+    .card ul, .card ol { list-style: none; padding: 0; margin: 0; }
+    .card li { position: relative; padding-left: 24px; margin-bottom: 8px; }
+
+    .card ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 9px;
+      height: 9px;
+      background: var(--accent);
+    }
+
+    .card ol { counter-reset: step; }
+    .card ol li { counter-increment: step; padding-left: 36px; }
+    .card ol li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 1px;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: var(--sidebar-bg);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+    }
+
+    .code-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+
+    .code-box { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+    .wrong-box { border-color: var(--wrong); }
+    .right-box { border-color: var(--right); }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 0.92rem;
+    }
+    .wrong-box .code-header { background: var(--wrong-bg); color: var(--wrong); }
+    .right-box .code-header { background: var(--right-bg); color: var(--right); }
+
+    .code-box pre {
+      margin: 0;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-button {
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 2px 9px;
+      border-radius: 6px;
+      border: 1px solid currentColor;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .page-buttons { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
+    .page-buttons button {
+      font-family: inherit;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--heading);
+      background: none;
+      color: var(--heading);
+      cursor: pointer;
+      max-width: 49%;
+      text-align: left;
+    }
+
+    .hidden-text { position: absolute; left: -9999px; }
+
+    /* phones */
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .menu { max-height: 240px; overflow: auto; }
+      .main { padding: 22px 16px 40px; }
+      .two-columns, .code-compare { grid-template-columns: 1fr; }
+      .print-button { margin-top: 0; }
+    }
+
+    /* printing shows every error */
+    @media print {
+      .sidebar, .page-buttons { display: none; }
+      .layout { display: block; }
+      .main { padding: 0; max-width: none; }
+      body { background: white; color: black; }
+      .print-title { display: block; }
+      .page { display: block !important; margin-bottom: 24px; break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="logo-row">
+        <div class="logo-box">Py</div>
+        <div>
+          <div class="logo-small">Errors &amp; Fixes</div>
+          <div class="logo-big">Python</div>
+        </div>
+      </div>
+
+      <input class="search-box" id="searchBox" type="search" placeholder="Search, for example NameError" autocomplete="off">
+
+      <div class="menu" id="menu"></div>
+
+      <p class="no-match" id="noMatch" hidden>No match. Try fewer words, or ask a lab assistant.</p>
+
+      <button type="button" class="print-button" id="printButton">Print or save as PDF</button>
+
+      <p class="sidebar-note">
+        
+        Prepared by Tharundi Dunuwila.
+        
+      </p>
+    </div>
+
+    <div class="main">
+      <h1 class="print-title">Common Programming Errors & Fixes: Python</h1>
+      <div id="pages"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // To add an error, copy one block, paste it at the end of the list and change the text.
+    var DATA = {
+      errors: [
+      {
+        name: "SyntaxError",
+        msg: "SyntaxError: invalid syntax / expected ':'",
+        cat: "Syntax and structure",
+        means: "Python cannot understand the structure of a line, so the program does not start at all.",
+        causes: [
+          "A missing colon after if, elif, else, for, while, def or class.",
+          "A bracket or quote that is opened but never closed.",
+          "= used where == is needed."
+        ],
+        fix: [
+          "Read the line shown and the ^ marker, then check the line above it, because an unclosed bracket there often causes the error on the next line.",
+          "Add the missing colon, or match the brackets and quotes.",
+          "Use == to compare values."
+        ],
+        wrong: "if score > 50\n    print(\"Pass\")",
+        right: "if score > 50:\n    print(\"Pass\")"
+      },
+      {
+        name: "IndentationError",
+        msg: "IndentationError: expected an indented block",
+        cat: "Syntax and structure",
+        means: "Python uses the spaces at the start of a line to show which lines belong together. The spacing is missing or inconsistent.",
+        causes: [
+          "Code after a colon is not indented.",
+          "Different amounts of indentation in one block.",
+          "Tabs and spaces mixed in one file."
+        ],
+        fix: [
+          "Indent every line of a block by the same amount (4 spaces).",
+          "In VS Code, click Spaces or Tab Size at the bottom right and choose Convert Indentation to Spaces.",
+          "Select lines and press Tab or Shift+Tab to indent or un-indent them."
+        ],
+        wrong: "def greet():\nprint(\"Hello\")",
+        right: "def greet():\n    print(\"Hello\")"
+      },
+      {
+        name: "NameError",
+        msg: "NameError: name 'total' is not defined",
+        cat: "Names and types",
+        means: "You used a name (a variable, function or module) that Python does not know at that point.",
+        causes: [
+          "A spelling or capital-letter difference (total and Total are different).",
+          "The variable is used before it is created.",
+          "A library is used without import.",
+          "A variable created inside a function is used outside it.",
+          "Text written without quotes."
+        ],
+        fix: [
+          "Compare the name in the error with where you created it, letter by letter.",
+          "Move the line that creates the variable above the line that uses it.",
+          "Add the import at the top, for example import math.",
+          "Use return to send a value out of a function."
+        ],
+        wrong: "total = 10\nprint(totl)",
+        right: "total = 10\nprint(total)"
+      },
+      {
+        name: "TypeError",
+        msg: "TypeError: can only concatenate str (not \"int\") to str",
+        cat: "Names and types",
+        means: "You combined values of types that do not work together, for example text and a number.",
+        causes: [
+          "Joining text and a number with +.",
+          "Using the result of input() as a number. input() always returns text.",
+          "Calling a function with the wrong number of arguments."
+        ],
+        fix: [
+          "Read the message. It names the two types involved.",
+          "Convert the value with int(), float() or str(), or use an f-string.",
+          "Check what the function expects and pass that many arguments.",
+          "While debugging, print a value’s type with print(type(x))."
+        ],
+        wrong: "age = input(\"Age: \")\nprint(age + 1)",
+        right: "age = int(input(\"Age: \"))\nprint(age + 1)"
+      },
+      {
+        name: "AttributeError",
+        msg: "AttributeError: 'str' object has no attribute 'append'",
+        cat: "Names and types",
+        means: "You used a method or property that the object does not have.",
+        causes: [
+          "A list method used on text, or the other way round.",
+          "A misspelled method name.",
+          "A function with no return gives None, and None has no methods."
+        ],
+        fix: [
+          "Check the type with print(type(x)).",
+          "Check the method name in the Python documentation.",
+          "Make sure the function ends with return value."
+        ],
+        wrong: "name = \"Sam\"\nname.append(\"!\")",
+        right: "name = \"Sam\"\nname = name + \"!\""
+      },
+      {
+        name: "'int' object is not callable",
+        msg: "TypeError: 'int' object is not callable",
+        cat: "Names and types",
+        means: "You used a name for a value, then tried to use it like a function with brackets. This often happens when you name a variable after a built-in function, such as sum or max.",
+        causes: [
+          "A variable named sum, max, min, list, str or input.",
+          "A missing operator before a bracket, such as 2(3 + 4)."
+        ],
+        fix: [
+          "Rename the variable so it does not match a built-in name.",
+          "Restart the program or the shell, because the old value may still exist.",
+          "Add the missing * for multiplication."
+        ],
+        wrong: "sum = 10 + 5\nprint(sum([1, 2, 3]))",
+        right: "total = 10 + 5\nprint(sum([1, 2, 3]))"
+      },
+      {
+        name: "ValueError",
+        msg: "ValueError: invalid literal for int() with base 10: 'abc'",
+        cat: "Values and conversions",
+        means: "The type of the value is right, but its content cannot be used. For example, text that is not a number cannot become an int.",
+        causes: [
+          "The user types letters where a number is expected.",
+          "An empty string is converted to a number."
+        ],
+        fix: [
+          "Check the value before converting it, or catch the error and ask again."
+        ],
+        wrong: "n = int(\"abc\")",
+        right: "text = input(\"Number: \")\ntry:\n    n = int(text)\nexcept ValueError:\n    print(\"Please type a whole number.\")"
+      },
+      {
+        name: "ZeroDivisionError",
+        msg: "ZeroDivisionError: division by zero",
+        cat: "Values and conversions",
+        means: "The program divided a number by zero.",
+        causes: [
+          "A counter or total that is still 0.",
+          "A calculation that depends on user input."
+        ],
+        fix: [
+          "Check the divisor before dividing."
+        ],
+        wrong: "average = total / count",
+        right: "if count != 0:\n    average = total / count\nelse:\n    average = 0"
+      },
+      {
+        name: "input() gives text",
+        msg: "TypeError: can only concatenate str (not \"int\") to str  /  wrong sum like '23'",
+        cat: "Values and conversions",
+        means: "input() always returns text, even when the user types a number. Adding two texts joins them instead of adding them.",
+        causes: [
+          "Using the result of input() in maths without converting it.",
+          "Comparing a number with text, for example age > 18 when age is text."
+        ],
+        fix: [
+          "Convert the input straight away with int() or float().",
+          "If the user may type something that is not a number, wrap the conversion in try / except ValueError."
+        ],
+        wrong: "a = input(\"First: \")\nb = input(\"Second: \")\nprint(a + b)      # 2 and 3 gives 23",
+        right: "a = int(input(\"First: \"))\nb = int(input(\"Second: \"))\nprint(a + b)      # 2 and 3 gives 5"
+      },
+      {
+        name: "IndexError",
+        msg: "IndexError: list index out of range",
+        cat: "Lists, dictionaries and files",
+        means: "You asked for a position in a list (or string) that does not exist.",
+        causes: [
+          "Lists start at position 0, so a list with 3 items has positions 0, 1 and 2.",
+          "A loop that runs one step too far.",
+          "Taking an item from an empty list."
+        ],
+        fix: [
+          "Print len(my_list) to see how many items there are.",
+          "Use my_list[-1] for the last item.",
+          "Loop over the items directly, or stop at len(my_list)."
+        ],
+        wrong: "names = [\"Ann\", \"Raj\", \"Mia\"]\nprint(names[3])",
+        right: "names = [\"Ann\", \"Raj\", \"Mia\"]\nprint(names[2])   # or names[-1]"
+      },
+      {
+        name: "KeyError",
+        msg: "KeyError: 'Alex'",
+        cat: "Lists, dictionaries and files",
+        means: "You asked a dictionary for a key that is not in it.",
+        causes: [
+          "A spelling or capital-letter difference in the key.",
+          "The key was never added."
+        ],
+        fix: [
+          "Print the dictionary to see its keys.",
+          "Check with in, or use .get() with a default value."
+        ],
+        wrong: "ages = {\"Sam\": 21}\nprint(ages[\"Alex\"])",
+        right: "ages = {\"Sam\": 21}\nprint(ages.get(\"Alex\", \"not found\"))"
+      },
+      {
+        name: "FileNotFoundError",
+        msg: "FileNotFoundError: [Errno 2] No such file or directory: 'data.csv'",
+        cat: "Lists, dictionaries and files",
+        means: "Python cannot find the file. Python looks for relative file names from the folder the program runs in.",
+        causes: [
+          "VS Code has the wrong folder open.",
+          "A spelling mistake or wrong extension. Windows can hide extensions, so data.csv may really be data.csv.txt.",
+          "The file is in another folder."
+        ],
+        fix: [
+          "Open your project folder in VS Code (File, then Open Folder).",
+          "Check where the terminal is: cd on Windows, pwd on Mac or Linux.",
+          "List the files with dir (Windows) or ls (Mac or Linux) and compare the name.",
+          "On Windows, write full paths as r\"C:\\Users\\name\\data.csv\"."
+        ],
+        wrong: "f = open(\"dat.csv\")",
+        right: "f = open(\"data.csv\")"
+      },
+      {
+        name: "ModuleNotFoundError",
+        msg: "ModuleNotFoundError: No module named 'numpy'",
+        cat: "Packages",
+        means: "Python cannot find the package you imported in the Python that runs your code.",
+        causes: [
+          "The package is not installed.",
+          "It is installed for a different Python from the one VS Code uses.",
+          "The install name differs from the import name (cv2 needs opencv-python).",
+          "One of your files has the same name as the package."
+        ],
+        fix: [
+          "Install it with the same Python that runs your code.",
+          "Select the right interpreter in VS Code (Python: Select Interpreter).",
+          "Rename any file that has the same name as a package."
+        ],
+        wrong: "import numpy",
+        right: "# Windows:    py -m pip install numpy\n# Mac/Linux:  python3 -m pip install numpy\nimport numpy"
+      },
+      {
+        name: "Your file name hides a module",
+        msg: "ImportError: cannot import name 'randint' from 'random'  (or an odd AttributeError)",
+        cat: "Packages",
+        means: "You named your own file the same as a Python module, such as random.py or math.py, so Python imports your file instead of the real module.",
+        causes: [
+          "A file called random.py, math.py, turtle.py or similar in the same folder.",
+          "An old __pycache__ folder left from the badly named file."
+        ],
+        fix: [
+          "Rename your file to something else, for example dice_game.py.",
+          "Delete the __pycache__ folder next to it.",
+          "Run the program again."
+        ],
+        wrong: "# file name: random.py\nimport random\nprint(random.randint(1, 6))",
+        right: "# file name: dice_game.py\nimport random\nprint(random.randint(1, 6))"
+      },
+      {
+        name: "Infinite loop",
+        msg: "The terminal keeps running or repeating",
+        cat: "Loops",
+        means: "The condition of a while loop never becomes false.",
+        causes: [
+          "The variable in the condition never changes.",
+          "while True without a break that can be reached."
+        ],
+        fix: [
+          "Click in the terminal and press Ctrl+C to stop the program.",
+          "Make sure something inside the loop changes the values the condition checks."
+        ],
+        wrong: "count = 0\nwhile count < 5:\n    print(count)",
+        right: "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1"
+      },
+      {
+        name: "Off-by-one in range()",
+        msg: "No error shown. The loop runs one time too few or too many.",
+        cat: "Loops",
+        means: "range(n) starts at 0 and stops before n, so the last number is n - 1. Many loop mistakes come from forgetting this.",
+        causes: [
+          "Writing range(1, 5) and expecting 5 to be included.",
+          "Using len(items) as an index. The last valid index is len(items) - 1."
+        ],
+        fix: [
+          "Write down the first and last value you expect, then check them against range(start, stop). The stop value is never included.",
+          "To include the last number, use range(1, 6) for 1 to 5.",
+          "Print the loop variable while you test."
+        ],
+        wrong: "for i in range(1, 5):\n    print(i)        # prints 1 2 3 4",
+        right: "for i in range(1, 6):\n    print(i)        # prints 1 2 3 4 5"
+      },
+      {
+        name: "RecursionError",
+        msg: "RecursionError: maximum recursion depth exceeded",
+        cat: "Functions",
+        means: "A function keeps calling itself and never stops, so Python gives up after about 1000 calls.",
+        causes: [
+          "A recursive function with no base case (no condition that stops it).",
+          "A base case that is never reached because the value changes the wrong way."
+        ],
+        fix: [
+          "Find the line in the error that repeats many times. That is the function calling itself.",
+          "Add a base case that returns without calling the function again.",
+          "Make sure each call moves closer to the base case (for example n - 1, not n + 1)."
+        ],
+        wrong: "def countdown(n):\n    print(n)\n    countdown(n - 1)\n\ncountdown(3)",
+        right: "def countdown(n):\n    if n < 0:          # base case\n        return\n    print(n)\n    countdown(n - 1)\n\ncountdown(3)"
+      },
+      {
+        name: "UnboundLocalError",
+        msg: "UnboundLocalError: local variable 'count' referenced before assignment",
+        cat: "Functions",
+        means: "Inside a function you changed a variable that was created outside it, so Python treats it as a new local variable with no value yet.",
+        causes: [
+          "Using count += 1 inside a function when count was created outside.",
+          "Using a variable in a function before giving it a value."
+        ],
+        fix: [
+          "Pass the value in as a parameter and return the new value.",
+          "Or, if you really need the outside variable, write global count on the first line of the function.",
+          "Prefer parameters and return values. They are easier to test."
+        ],
+        wrong: "count = 0\n\ndef add():\n    count += 1\n\nadd()",
+        right: "count = 0\n\ndef add(count):\n    return count + 1\n\ncount = add(count)"
+      }
+      ],
+      read: {
+        title: "How to read a Python error message",
+        intro: "Python prints a traceback. Read it from the bottom upwards.",
+        snip: "Traceback (most recent call last):\n  File \"main.py\", line 5, in <module>\n    print(total / count)\nZeroDivisionError: division by zero",
+        points: [
+          "The last line gives the error type and a short explanation.",
+          "The line above it shows the code that failed.",
+          "The line before that gives the file name and line number.",
+          "For a SyntaxError, also check the line above the one shown."
+        ]
+      }
+    };
+
+    var errors = DATA.errors;
+    var howToRead = DATA.read;
+    var pagesDiv = document.getElementById("pages");
+    var menuDiv = document.getElementById("menu");
+    var searchBox = document.getElementById("searchBox");
+    var noMatch = document.getElementById("noMatch");
+
+    var pages = {};
+    var menuButtons = {};
+    var pageIds = ["start"];
+    for (var i = 0; i < errors.length; i++) {
+      pageIds.push("error" + i);
+    }
+
+    function makeElement(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) {
+        el.className = className;
+      }
+      if (text) {
+        el.textContent = text;
+      }
+      return el;
+    }
+
+    function makeList(type, items) {
+      var list = document.createElement(type);
+      for (var i = 0; i < items.length; i++) {
+        list.appendChild(makeElement("li", "", items[i]));
+      }
+      return list;
+    }
+
+    function copyCode(text, button) {
+      var oldText = button.textContent;
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.className = "hidden-text";
+      document.body.appendChild(textarea);
+      textarea.select();
+      var worked = false;
+      try {
+        worked = document.execCommand("copy");
+      } catch (e) {
+        worked = false;
+      }
+      document.body.removeChild(textarea);
+      button.textContent = worked ? "Copied" : "Select and copy";
+      setTimeout(function () {
+        button.textContent = oldText;
+      }, 1600);
+    }
+
+    function makeCodeBox(boxClass, label, code) {
+      var box = makeElement("div", "code-box " + boxClass);
+      var header = makeElement("div", "code-header");
+      header.appendChild(makeElement("span", "", label));
+
+      var button = makeElement("button", "copy-button", "Copy");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        copyCode(code, button);
+      });
+      header.appendChild(button);
+
+      var pre = makeElement("pre");
+      pre.appendChild(makeElement("code", "", code));
+      box.appendChild(header);
+      box.appendChild(pre);
+      return box;
+    }
+
+    function makeNavButton(id, label, arrowFirst) {
+      var button = makeElement("button", "", arrowFirst ? "← " + label : label + " →");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    function makePageButtons(previousId, previousLabel, nextId, nextLabel) {
+      var row = makeElement("div", "page-buttons");
+      if (previousId) {
+        row.appendChild(makeNavButton(previousId, previousLabel, true));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      if (nextId) {
+        row.appendChild(makeNavButton(nextId, nextLabel, false));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      return row;
+    }
+
+    // the start page
+    var startPage = makeElement("div", "page");
+    startPage.appendChild(makeElement("span", "category-tag", "Start here"));
+    startPage.appendChild(makeElement("h1", "", howToRead.title));
+    startPage.appendChild(makeElement("p", "summary", howToRead.intro));
+
+    var example = makeElement("div", "error-message");
+    example.appendChild(makeElement("small", "", "Example"));
+    example.appendChild(document.createTextNode(howToRead.snip));
+    startPage.appendChild(example);
+
+    var lookCard = makeElement("div", "card");
+    lookCard.appendChild(makeElement("h2", "", "What to look at"));
+    lookCard.appendChild(makeList("ul", howToRead.points));
+    startPage.appendChild(lookCard);
+
+    var chooseText = makeElement("p", "summary", "Choose an error from the list to see what it means, why it happens and how to fix it.");
+    chooseText.style.fontSize = "1rem";
+    chooseText.style.marginTop = "20px";
+    chooseText.style.color = "var(--text-light)";
+    startPage.appendChild(chooseText);
+
+    startPage.appendChild(makePageButtons(null, null, "error0", errors[0].name));
+    pages["start"] = startPage;
+
+    // one page for each error
+    for (var n = 0; n < errors.length; n++) {
+      var error = errors[n];
+      var page = makeElement("div", "page");
+
+      page.appendChild(makeElement("span", "category-tag", error.cat));
+      page.appendChild(makeElement("span", "counter", (n + 1) + " of " + errors.length));
+      page.appendChild(makeElement("h1", "", error.name));
+
+      var messageBox = makeElement("div", "error-message");
+      messageBox.appendChild(makeElement("small", "", "You will see"));
+      messageBox.appendChild(document.createTextNode(error.msg));
+      page.appendChild(messageBox);
+
+      page.appendChild(makeElement("p", "summary", error.means));
+
+      var causesCard = makeElement("div", "card");
+      causesCard.appendChild(makeElement("h2", "", "Why it happens"));
+      causesCard.appendChild(makeList("ul", error.causes));
+
+      var fixCard = makeElement("div", "card");
+      fixCard.appendChild(makeElement("h2", "", "How to fix it"));
+      fixCard.appendChild(makeList("ol", error.fix));
+
+      var columns = makeElement("div", "two-columns");
+      columns.appendChild(causesCard);
+      columns.appendChild(fixCard);
+      page.appendChild(columns);
+
+      if (error.wrong) {
+        var compare = makeElement("div", "code-compare");
+        compare.appendChild(makeCodeBox("wrong-box", "Wrong", error.wrong));
+        compare.appendChild(makeCodeBox("right-box", "Right", error.right));
+        page.appendChild(compare);
+      }
+
+      var previousId = "start";
+      var previousLabel = "How to read an error";
+      if (n > 0) {
+        previousId = "error" + (n - 1);
+        previousLabel = errors[n - 1].name;
+      }
+      var nextId = null;
+      var nextLabel = null;
+      if (n < errors.length - 1) {
+        nextId = "error" + (n + 1);
+        nextLabel = errors[n + 1].name;
+      }
+      page.appendChild(makePageButtons(previousId, previousLabel, nextId, nextLabel));
+
+      pages["error" + n] = page;
+    }
+
+    for (var p = 0; p < pageIds.length; p++) {
+      pagesDiv.appendChild(pages[pageIds[p]]);
+    }
+
+    // the menu on the left
+    var headings = {};
+    var categoryItems = {};
+    var categories = [];
+    var searchText = {};
+
+    var startButton = makeElement("button", "menu-item", "Start here: how to read an error");
+    startButton.type = "button";
+    startButton.addEventListener("click", function () {
+      showPage("start");
+    });
+    menuDiv.appendChild(startButton);
+    menuButtons["start"] = startButton;
+
+    function makeMenuButton(id, name) {
+      var button = makeElement("button", "menu-item", name);
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    for (var m = 0; m < errors.length; m++) {
+      var item = errors[m];
+      var id = "error" + m;
+
+      if (!headings[item.cat]) {
+        headings[item.cat] = makeElement("h3", "menu-heading", item.cat);
+        categoryItems[item.cat] = [];
+        categories.push(item.cat);
+        menuDiv.appendChild(headings[item.cat]);
+      }
+
+      menuButtons[id] = makeMenuButton(id, item.name);
+      menuDiv.appendChild(menuButtons[id]);
+      categoryItems[item.cat].push(id);
+      searchText[id] = (item.name + " " + item.msg + " " + item.cat + " " + item.means).toLowerCase();
+    }
+
+    function showPage(id) {
+      for (var k = 0; k < pageIds.length; k++) {
+        var isChosen = (pageIds[k] === id);
+        pages[pageIds[k]].classList.toggle("visible", isChosen);
+        menuButtons[pageIds[k]].classList.toggle("selected", isChosen);
+      }
+      try {
+        history.replaceState(null, "", "#" + id);
+      } catch (e) {
+        // preview windows do not allow this
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // search: every word typed must be found in the error text
+    searchBox.addEventListener("input", function () {
+      var words = searchBox.value.toLowerCase().split(" ");
+      var shown = 0;
+
+      for (var c = 0; c < categories.length; c++) {
+        var category = categories[c];
+        var anyShown = false;
+
+        for (var j = 0; j < categoryItems[category].length; j++) {
+          var pageId = categoryItems[category][j];
+          var matches = true;
+          for (var w = 0; w < words.length; w++) {
+            if (words[w] !== "" && searchText[pageId].indexOf(words[w]) === -1) {
+              matches = false;
+            }
+          }
+          menuButtons[pageId].hidden = !matches;
+          if (matches) {
+            anyShown = true;
+            shown++;
+          }
+        }
+        headings[category].hidden = !anyShown;
+      }
+
+      noMatch.hidden = (shown !== 0 || searchBox.value.trim() === "");
+    });
+
+    document.getElementById("printButton").addEventListener("click", function () {
+      window.print();
+    });
+
+    var firstPage = "start";
+    var wanted = location.hash.slice(1);
+    if (pages[wanted]) {
+      firstPage = wanted;
+    }
+    showPage(firstPage);
+  </script>
+</body>
+</html>

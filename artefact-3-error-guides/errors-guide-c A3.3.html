@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Common Programming Errors & Fixes: C</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #f6f7fa;
+      --card-bg: #ffffff;
+      --text: #101828;
+      --text-light: #5b6574;
+      --border: #dde2ea;
+      --sidebar-bg: #2e1a6b;
+      --accent: #2dd4bf;
+      --heading: #6b3fc4;
+      --wrong: #b42318;
+      --wrong-bg: #fdecea;
+      --right: #127a4b;
+      --right-bg: #e3f6ec;
+      --code-bg: #0b1220;
+      --code-text: #e6edf6;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #0b1220;
+        --card-bg: #141d2e;
+        --text: #e6edf6;
+        --text-light: #9aa7b8;
+        --border: #263247;
+        --heading: #2dd4bf;
+        --wrong: #ff9d93;
+        --wrong-bg: #3a1d1b;
+        --right: #5fd3a0;
+        --right-bg: #10382b;
+        --code-bg: #060b14;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 100vh;
+    }
+
+    /* sidebar */
+    .sidebar {
+      background: var(--sidebar-bg);
+      color: white;
+      padding: 22px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .logo-row { display: flex; gap: 14px; align-items: center; }
+
+    .logo-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: var(--accent);
+      color: var(--sidebar-bg);
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 2rem;
+    }
+
+    .logo-small { font-size: 0.9rem; }
+    .logo-big { font-size: 1.7rem; font-weight: bold; }
+
+    .search-box {
+      width: 100%;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+    .search-box::placeholder { color: #ddd; }
+
+    .menu { display: flex; flex-direction: column; gap: 2px; }
+
+    .menu-heading {
+      margin: 12px 0 4px;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .menu-item {
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-align: left;
+      color: white;
+      background: none;
+      border: none;
+      border-left: 4px solid transparent;
+      border-radius: 6px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .menu-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .menu-item.selected {
+      background: rgba(255, 255, 255, 0.17);
+      border-left-color: var(--accent);
+      font-weight: bold;
+    }
+
+    .no-match { margin: 0; font-size: 0.9rem; }
+
+    .print-button {
+      margin-top: auto;
+      font-family: inherit;
+      font-weight: bold;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .sidebar-note { margin: 0; font-size: 0.78rem; opacity: 0.75; }
+
+    button:focus, input:focus { outline: 3px solid #8ab4f8; outline-offset: 2px; }
+
+    /* main area */
+    .main { padding: 34px 40px 50px; max-width: 940px; }
+
+    .print-title { display: none; }
+
+    .page { display: none; }
+    .page.visible { display: block; }
+
+    .category-tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: bold;
+      padding: 2px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--heading);
+      color: var(--heading);
+    }
+
+    .counter { margin-left: 10px; color: var(--text-light); font-size: 0.88rem; }
+
+    .page h1 { font-size: 2.05rem; line-height: 1.2; margin: 10px 0 14px; }
+
+    .error-message {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      padding: 12px 16px;
+      border-left: 5px solid var(--accent);
+      margin-bottom: 22px;
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .error-message small {
+      display: block;
+      color: #8aa0b8;
+      font-family: Arial, sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .summary { font-size: 1.2rem; line-height: 1.5; margin: 0 0 24px; }
+
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--heading); }
+
+    .card ul, .card ol { list-style: none; padding: 0; margin: 0; }
+    .card li { position: relative; padding-left: 24px; margin-bottom: 8px; }
+
+    .card ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 9px;
+      height: 9px;
+      background: var(--accent);
+    }
+
+    .card ol { counter-reset: step; }
+    .card ol li { counter-increment: step; padding-left: 36px; }
+    .card ol li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 1px;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: var(--sidebar-bg);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+    }
+
+    .code-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+
+    .code-box { border-radius: 12px; overflow: hidden; border: 2px solid var(--border); }
+    .wrong-box { border-color: var(--wrong); }
+    .right-box { border-color: var(--right); }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 0.92rem;
+    }
+    .wrong-box .code-header { background: var(--wrong-bg); color: var(--wrong); }
+    .right-box .code-header { background: var(--right-bg); color: var(--right); }
+
+    .code-box pre {
+      margin: 0;
+      padding: 12px 14px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: "IBM Plex Mono", Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-button {
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 2px 9px;
+      border-radius: 6px;
+      border: 1px solid currentColor;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .page-buttons { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
+    .page-buttons button {
+      font-family: inherit;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--heading);
+      background: none;
+      color: var(--heading);
+      cursor: pointer;
+      max-width: 49%;
+      text-align: left;
+    }
+
+    .hidden-text { position: absolute; left: -9999px; }
+
+    /* phones */
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .menu { max-height: 240px; overflow: auto; }
+      .main { padding: 22px 16px 40px; }
+      .two-columns, .code-compare { grid-template-columns: 1fr; }
+      .print-button { margin-top: 0; }
+    }
+
+    /* printing shows every error */
+    @media print {
+      .sidebar, .page-buttons { display: none; }
+      .layout { display: block; }
+      .main { padding: 0; max-width: none; }
+      body { background: white; color: black; }
+      .print-title { display: block; }
+      .page { display: block !important; margin-bottom: 24px; break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="logo-row">
+        <div class="logo-box">C</div>
+        <div>
+          <div class="logo-small">Errors &amp; Fixes</div>
+          <div class="logo-big">C</div>
+        </div>
+      </div>
+
+      <input class="search-box" id="searchBox" type="search" placeholder="Search, for example segmentation fault" autocomplete="off">
+
+      <div class="menu" id="menu"></div>
+
+      <p class="no-match" id="noMatch" hidden>No match. Try fewer words, or ask a lab assistant.</p>
+
+      <button type="button" class="print-button" id="printButton">Print or save as PDF</button>
+
+      <p class="sidebar-note">
+        
+        Prepared by Tharundi Dunuwila.
+       
+      </p>
+    </div>
+
+    <div class="main">
+      <h1 class="print-title">Common Programming Errors & Fixes: C</h1>
+      <div id="pages"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // To add an error, copy one block, paste it at the end of the list and change the text.
+    var DATA = {
+      errors: [
+      {
+        name: "Missing semicolon",
+        msg: "error: expected ';' before 'return'",
+        cat: "Compile errors",
+        means: "The compiler reached the end of a statement and found no semicolon. The missing one is usually on the line above the one reported.",
+        causes: [
+          "A missing ; at the end of a statement.",
+          "An unclosed bracket or quote."
+        ],
+        fix: [
+          "Look at the reported line, then at the line above it.",
+          "End every statement with a semicolon.",
+          "Fix the first error first, then compile again."
+        ],
+        wrong: "int total = 5\nreturn 0;",
+        right: "int total = 5;\nreturn 0;"
+      },
+      {
+        name: "Undeclared variable",
+        msg: "error: 'count' undeclared (first use in this function)",
+        cat: "Compile errors",
+        means: "The compiler does not know the name at that point.",
+        causes: [
+          "The variable was never declared.",
+          "A spelling or capital-letter difference (C is case sensitive).",
+          "The variable was declared inside a block { } and used outside it."
+        ],
+        fix: [
+          "Declare the variable with its type before you use it.",
+          "Check spelling and capitals.",
+          "Declare it before the block if you need it outside."
+        ],
+        wrong: "count = 0;",
+        right: "int count = 0;"
+      },
+      {
+        name: "Implicit declaration",
+        msg: "warning: implicit declaration of function 'printf'",
+        cat: "Compile errors",
+        means: "You used a function before the compiler knew it existed. Usually the #include line is missing. Newer compilers treat this as an error.",
+        causes: [
+          "Missing #include <stdio.h> for printf and scanf.",
+          "Missing #include <stdlib.h>, <string.h> or <math.h>.",
+          "Your own function is used before it is defined."
+        ],
+        fix: [
+          "Add the right header at the top of the file.",
+          "For your own functions, add a prototype above main.",
+          "Compile with -Wall so you see warnings."
+        ],
+        wrong: "int main(void) {\n    printf(\"Hi\\n\");\n}",
+        right: "#include <stdio.h>\n\nint main(void) {\n    printf(\"Hi\\n\");\n}"
+      },
+      {
+        name: "Missing closing brace",
+        msg: "error: expected declaration or statement at end of input",
+        cat: "Compile errors",
+        means: "The compiler reached the end of the file while a { was still open. A } is missing somewhere.",
+        causes: [
+          "A missing } after a function, loop or if.",
+          "Braces that stopped matching after you edited code."
+        ],
+        fix: [
+          "Check the indentation: the line where it stops lining up shows where the brace is missing.",
+          "Most editors highlight the matching brace when you click next to one.",
+          "Fix the first error in the list first."
+        ],
+        wrong: "int main(void) {\n    for (int i = 0; i < 3; i++) {\n        printf(\"%d\\n\", i);\n    return 0;\n}",
+        right: "int main(void) {\n    for (int i = 0; i < 3; i++) {\n        printf(\"%d\\n\", i);\n    }\n    return 0;\n}"
+      },
+      {
+        name: "Control reaches end of non-void function",
+        msg: "warning: control reaches end of non-void function",
+        cat: "Compile errors",
+        means: "A function that should return a value can finish without returning one on some path.",
+        causes: [
+          "A return inside an if with no return after it.",
+          "Forgetting return at the end of the function."
+        ],
+        fix: [
+          "Make sure every path ends with a return of the right type.",
+          "Compile with gcc -Wall so you see warnings like this one."
+        ],
+        wrong: "int bigger(int a, int b) {\n    if (a > b) return a;\n    else if (b > a) return b;\n}",
+        right: "int bigger(int a, int b) {\n    if (a > b) return a;\n    return b;\n}"
+      },
+      {
+        name: "undefined reference",
+        msg: "undefined reference to `add' / ld returned 1 exit status",
+        cat: "Linker errors",
+        means: "The compiler found the function’s declaration, but the linker cannot find the function’s code.",
+        causes: [
+          "The function has no body, or its name or parameters differ.",
+          "The file with the function was not compiled together with main.",
+          "A maths function (sqrt, pow) without -lm.",
+          "No main function, or two of them."
+        ],
+        fix: [
+          "Check the function is defined with the same name and parameters.",
+          "Compile all the .c files together.",
+          "Add -lm at the end for maths functions.",
+          "Do not #include a .c file."
+        ],
+        wrong: "gcc main.c -o app",
+        right: "gcc main.c add.c -o app -lm"
+      },
+      {
+        name: "Segmentation fault",
+        msg: "Segmentation fault (core dumped)",
+        cat: "Run-time crashes",
+        means: "The program tried to use memory it is not allowed to use. On Windows it may stop without a message.",
+        causes: [
+          "An array index outside the array.",
+          "A NULL or unset pointer.",
+          "Memory used after free.",
+          "A missing & in scanf.",
+          "Recursion that never ends."
+        ],
+        fix: [
+          "Compile with -g and -Wall -Wextra.",
+          "Check scanf calls, array loops and pointers.",
+          "In VS Code, set a breakpoint, press F5 and step with F10 until it crashes."
+        ],
+        wrong: "int *p = NULL;\n*p = 5;",
+        right: "int value = 0;\nint *p = &value;\n*p = 5;"
+      },
+      {
+        name: "scanf without &",
+        msg: "warning: format '%d' expects argument of type 'int *'",
+        cat: "Run-time crashes",
+        means: "scanf needs the address of a variable so it can store the value there.",
+        causes: [
+          "Writing scanf(\"%d\", age) instead of &age."
+        ],
+        fix: [
+          "Put & in front of every non-array variable in scanf.",
+          "Use %d for int, %lf for double and %c for char."
+        ],
+        wrong: "scanf(\"%d\", age);",
+        right: "scanf(\"%d\", &age);"
+      },
+      {
+        name: "Wrong printf format",
+        msg: "warning: format '%d' expects argument of type 'int', but argument 2 has type 'double'",
+        cat: "Logic mistakes",
+        means: "The format code does not match the type of the value, so the program prints nonsense.",
+        causes: [
+          "%d used for a double.",
+          "%f used for an int."
+        ],
+        fix: [
+          "Use %d for int, %f for double, %c for char and %s for text.",
+          "Compile with -Wall to get this warning."
+        ],
+        wrong: "double price = 3.5;\nprintf(\"%d\\n\", price);",
+        right: "double price = 3.5;\nprintf(\"%f\\n\", price);"
+      },
+      {
+        name: "Uninitialised variable",
+        msg: "warning: 'total' may be used uninitialized",
+        cat: "Logic mistakes",
+        means: "A variable that was never given a value holds a random leftover value.",
+        causes: [
+          "A variable declared but not assigned before use."
+        ],
+        fix: [
+          "Give every variable a starting value when you declare it.",
+          "Compile with -Wall -Wextra."
+        ],
+        wrong: "int total;\ntotal = total + 5;",
+        right: "int total = 0;\ntotal = total + 5;"
+      },
+      {
+        name: "Array out of bounds",
+        msg: "No error message. The program prints odd values or crashes later.",
+        cat: "Logic mistakes",
+        means: "C does not check array positions. Going outside the array silently changes other memory.",
+        causes: [
+          "A loop that uses <= instead of <.",
+          "An index that is one too large."
+        ],
+        fix: [
+          "Remember an array of 3 items has positions 0, 1 and 2.",
+          "Loop with < and the array size."
+        ],
+        wrong: "int a[3] = {1, 2, 3};\nfor (int i = 0; i <= 3; i++) {\n    printf(\"%d\\n\", a[i]);\n}",
+        right: "int a[3] = {1, 2, 3};\nfor (int i = 0; i < 3; i++) {\n    printf(\"%d\\n\", a[i]);\n}"
+      },
+      {
+        name: "= instead of ==",
+        msg: "warning: suggest parentheses around assignment used as truth value",
+        cat: "Logic mistakes",
+        means: "A single = stores a value. A condition that uses it is always true (or false) and changes the variable.",
+        causes: [
+          "Writing if (x = 5) instead of if (x == 5)."
+        ],
+        fix: [
+          "Use == to compare values.",
+          "Compile with -Wall so the compiler warns you."
+        ],
+        wrong: "if (x = 5) {\n    printf(\"five\\n\");\n}",
+        right: "if (x == 5) {\n    printf(\"five\\n\");\n}"
+      },
+      {
+        name: "Comparing text with ==",
+        msg: "if (name == \"Sam\") is never true",
+        cat: "Logic mistakes",
+        means: "In C, == on text compares memory addresses, not the letters.",
+        causes: [
+          "Using == or != to compare strings."
+        ],
+        fix: [
+          "Include <string.h> and use strcmp, which returns 0 when the strings match."
+        ],
+        wrong: "if (name == \"Sam\") {\n    printf(\"Hi\\n\");\n}",
+        right: "#include <string.h>\n\nif (strcmp(name, \"Sam\") == 0) {\n    printf(\"Hi\\n\");\n}"
+      },
+      {
+        name: "Integer division",
+        msg: "5 / 2 prints 2, not 2.5",
+        cat: "Logic mistakes",
+        means: "When both numbers are integers, C drops the decimal part.",
+        causes: [
+          "Dividing two int values.",
+          "Storing the result in an int."
+        ],
+        fix: [
+          "Make at least one value a double, or cast it.",
+          "Print a double with %f."
+        ],
+        wrong: "int a = 5, b = 2;\nprintf(\"%d\\n\", a / b);",
+        right: "int a = 5, b = 2;\nprintf(\"%f\\n\", (double) a / b);"
+      },
+      {
+        name: "Infinite loop",
+        msg: "The terminal keeps running or repeating",
+        cat: "Run-time crashes",
+        means: "The condition of a loop never becomes false.",
+        causes: [
+          "The variable in the condition never changes.",
+          "= used instead of == in the condition."
+        ],
+        fix: [
+          "Click in the terminal and press Ctrl+C to stop the program.",
+          "Make sure something inside the loop changes the values the condition checks."
+        ],
+        wrong: "int count = 0;\nwhile (count < 5) {\n    printf(\"%d\\n\", count);\n}",
+        right: "int count = 0;\nwhile (count < 5) {\n    printf(\"%d\\n\", count);\n    count++;\n}"
+      },
+      {
+        name: "Buffer overflow",
+        msg: "*** stack smashing detected ***  or a strange crash",
+        cat: "Run-time crashes",
+        means: "You wrote more data into an array than it can hold, so it overwrote memory next to it.",
+        causes: [
+          "Copying or reading a long text into a short char array.",
+          "Using gets() or scanf(\"%s\") with no limit.",
+          "A string array too small to hold the \\0 at the end."
+        ],
+        fix: [
+          "Make the array large enough, including one extra place for \\0.",
+          "Use fgets(name, sizeof name, stdin) instead of gets().",
+          "Limit scanf with a width: scanf(\"%19s\", name)."
+        ],
+        wrong: "char name[5];\nscanf(\"%s\", name);   // user types Alexander",
+        right: "char name[20];\nscanf(\"%19s\", name);"
+      },
+      {
+        name: "Memory leak (forgetting free)",
+        msg: "No error shown. Valgrind reports: definitely lost",
+        cat: "Memory",
+        means: "You reserved memory with malloc but never gave it back, so the program uses more and more memory.",
+        causes: [
+          "A malloc without a matching free.",
+          "Losing the pointer before calling free."
+        ],
+        fix: [
+          "Every malloc needs one free, once you have finished with the memory.",
+          "Set the pointer to NULL after freeing.",
+          "If valgrind is installed, run valgrind ./a.out to check."
+        ],
+        wrong: "int *p = malloc(5 * sizeof(int));\n/* ... use p ... */\nreturn 0;",
+        right: "int *p = malloc(5 * sizeof(int));\n/* ... use p ... */\nfree(p);\np = NULL;\nreturn 0;"
+      },
+      {
+        name: "Use after free / double free",
+        msg: "free(): double free detected  or Segmentation fault",
+        cat: "Memory",
+        means: "You used memory after releasing it, or released the same memory twice.",
+        causes: [
+          "Calling free(p) twice on the same pointer.",
+          "Reading or writing *p after free(p)."
+        ],
+        fix: [
+          "Set the pointer to NULL straight after free. Calling free(NULL) is safe.",
+          "Do not use the pointer after freeing it.",
+          "Free memory in only one place."
+        ],
+        wrong: "free(p);\nfree(p);        // second free crashes",
+        right: "free(p);\np = NULL;\nfree(p);        // safe, does nothing"
+      },
+      {
+        name: "Missing \\0 in a string",
+        msg: "Extra strange characters printed after the text",
+        cat: "Memory",
+        means: "A C string must end with the character \\0. Without it, printf keeps reading memory until it finds one.",
+        causes: [
+          "Filling a char array by hand and not adding \\0.",
+          "An array that is exactly the length of the text, with no room for \\0."
+        ],
+        fix: [
+          "Make the array one place longer than the text.",
+          "Use strcpy or a string literal, which add \\0 for you.",
+          "If you build the text by hand, set the last place to '\\0'."
+        ],
+        wrong: "char word[3] = {'H', 'i', '!'};\nprintf(\"%s\\n\", word);",
+        right: "char word[4] = {'H', 'i', '!', '\\0'};\nprintf(\"%s\\n\", word);"
+      }
+      ],
+      read: {
+        title: "How to read a C compiler message",
+        intro: "C reports compile problems with the file, line and column. Read the first one first.",
+        snip: "hello.c:5:5: error: expected ';' before 'return'",
+        points: [
+          "hello.c:5:5 means file hello.c, line 5, column 5.",
+          "An error stops the program from being built. A warning still builds, but you should fix it too.",
+          "Fix the first error first. Later errors are often caused by it.",
+          "Crashes such as a segmentation fault give no line number. Compile with -g and use the VS Code debugger."
+        ]
+      }
+    };
+
+    var errors = DATA.errors;
+    var howToRead = DATA.read;
+    var pagesDiv = document.getElementById("pages");
+    var menuDiv = document.getElementById("menu");
+    var searchBox = document.getElementById("searchBox");
+    var noMatch = document.getElementById("noMatch");
+
+    var pages = {};
+    var menuButtons = {};
+    var pageIds = ["start"];
+    for (var i = 0; i < errors.length; i++) {
+      pageIds.push("error" + i);
+    }
+
+    function makeElement(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) {
+        el.className = className;
+      }
+      if (text) {
+        el.textContent = text;
+      }
+      return el;
+    }
+
+    function makeList(type, items) {
+      var list = document.createElement(type);
+      for (var i = 0; i < items.length; i++) {
+        list.appendChild(makeElement("li", "", items[i]));
+      }
+      return list;
+    }
+
+    function copyCode(text, button) {
+      var oldText = button.textContent;
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.className = "hidden-text";
+      document.body.appendChild(textarea);
+      textarea.select();
+      var worked = false;
+      try {
+        worked = document.execCommand("copy");
+      } catch (e) {
+        worked = false;
+      }
+      document.body.removeChild(textarea);
+      button.textContent = worked ? "Copied" : "Select and copy";
+      setTimeout(function () {
+        button.textContent = oldText;
+      }, 1600);
+    }
+
+    function makeCodeBox(boxClass, label, code) {
+      var box = makeElement("div", "code-box " + boxClass);
+      var header = makeElement("div", "code-header");
+      header.appendChild(makeElement("span", "", label));
+
+      var button = makeElement("button", "copy-button", "Copy");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        copyCode(code, button);
+      });
+      header.appendChild(button);
+
+      var pre = makeElement("pre");
+      pre.appendChild(makeElement("code", "", code));
+      box.appendChild(header);
+      box.appendChild(pre);
+      return box;
+    }
+
+    function makeNavButton(id, label, arrowFirst) {
+      var button = makeElement("button", "", arrowFirst ? "← " + label : label + " →");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    function makePageButtons(previousId, previousLabel, nextId, nextLabel) {
+      var row = makeElement("div", "page-buttons");
+      if (previousId) {
+        row.appendChild(makeNavButton(previousId, previousLabel, true));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      if (nextId) {
+        row.appendChild(makeNavButton(nextId, nextLabel, false));
+      } else {
+        row.appendChild(makeElement("span"));
+      }
+      return row;
+    }
+
+    // the start page
+    var startPage = makeElement("div", "page");
+    startPage.appendChild(makeElement("span", "category-tag", "Start here"));
+    startPage.appendChild(makeElement("h1", "", howToRead.title));
+    startPage.appendChild(makeElement("p", "summary", howToRead.intro));
+
+    var example = makeElement("div", "error-message");
+    example.appendChild(makeElement("small", "", "Example"));
+    example.appendChild(document.createTextNode(howToRead.snip));
+    startPage.appendChild(example);
+
+    var lookCard = makeElement("div", "card");
+    lookCard.appendChild(makeElement("h2", "", "What to look at"));
+    lookCard.appendChild(makeList("ul", howToRead.points));
+    startPage.appendChild(lookCard);
+
+    var chooseText = makeElement("p", "summary", "Choose an error from the list to see what it means, why it happens and how to fix it.");
+    chooseText.style.fontSize = "1rem";
+    chooseText.style.marginTop = "20px";
+    chooseText.style.color = "var(--text-light)";
+    startPage.appendChild(chooseText);
+
+    startPage.appendChild(makePageButtons(null, null, "error0", errors[0].name));
+    pages["start"] = startPage;
+
+    // one page for each error
+    for (var n = 0; n < errors.length; n++) {
+      var error = errors[n];
+      var page = makeElement("div", "page");
+
+      page.appendChild(makeElement("span", "category-tag", error.cat));
+      page.appendChild(makeElement("span", "counter", (n + 1) + " of " + errors.length));
+      page.appendChild(makeElement("h1", "", error.name));
+
+      var messageBox = makeElement("div", "error-message");
+      messageBox.appendChild(makeElement("small", "", "You will see"));
+      messageBox.appendChild(document.createTextNode(error.msg));
+      page.appendChild(messageBox);
+
+      page.appendChild(makeElement("p", "summary", error.means));
+
+      var causesCard = makeElement("div", "card");
+      causesCard.appendChild(makeElement("h2", "", "Why it happens"));
+      causesCard.appendChild(makeList("ul", error.causes));
+
+      var fixCard = makeElement("div", "card");
+      fixCard.appendChild(makeElement("h2", "", "How to fix it"));
+      fixCard.appendChild(makeList("ol", error.fix));
+
+      var columns = makeElement("div", "two-columns");
+      columns.appendChild(causesCard);
+      columns.appendChild(fixCard);
+      page.appendChild(columns);
+
+      if (error.wrong) {
+        var compare = makeElement("div", "code-compare");
+        compare.appendChild(makeCodeBox("wrong-box", "Wrong", error.wrong));
+        compare.appendChild(makeCodeBox("right-box", "Right", error.right));
+        page.appendChild(compare);
+      }
+
+      var previousId = "start";
+      var previousLabel = "How to read an error";
+      if (n > 0) {
+        previousId = "error" + (n - 1);
+        previousLabel = errors[n - 1].name;
+      }
+      var nextId = null;
+      var nextLabel = null;
+      if (n < errors.length - 1) {
+        nextId = "error" + (n + 1);
+        nextLabel = errors[n + 1].name;
+      }
+      page.appendChild(makePageButtons(previousId, previousLabel, nextId, nextLabel));
+
+      pages["error" + n] = page;
+    }
+
+    for (var p = 0; p < pageIds.length; p++) {
+      pagesDiv.appendChild(pages[pageIds[p]]);
+    }
+
+    // the menu on the left
+    var headings = {};
+    var categoryItems = {};
+    var categories = [];
+    var searchText = {};
+
+    var startButton = makeElement("button", "menu-item", "Start here: how to read an error");
+    startButton.type = "button";
+    startButton.addEventListener("click", function () {
+      showPage("start");
+    });
+    menuDiv.appendChild(startButton);
+    menuButtons["start"] = startButton;
+
+    function makeMenuButton(id, name) {
+      var button = makeElement("button", "menu-item", name);
+      button.type = "button";
+      button.addEventListener("click", function () {
+        showPage(id);
+      });
+      return button;
+    }
+
+    for (var m = 0; m < errors.length; m++) {
+      var item = errors[m];
+      var id = "error" + m;
+
+      if (!headings[item.cat]) {
+        headings[item.cat] = makeElement("h3", "menu-heading", item.cat);
+        categoryItems[item.cat] = [];
+        categories.push(item.cat);
+        menuDiv.appendChild(headings[item.cat]);
+      }
+
+      menuButtons[id] = makeMenuButton(id, item.name);
+      menuDiv.appendChild(menuButtons[id]);
+      categoryItems[item.cat].push(id);
+      searchText[id] = (item.name + " " + item.msg + " " + item.cat + " " + item.means).toLowerCase();
+    }
+
+    function showPage(id) {
+      for (var k = 0; k < pageIds.length; k++) {
+        var isChosen = (pageIds[k] === id);
+        pages[pageIds[k]].classList.toggle("visible", isChosen);
+        menuButtons[pageIds[k]].classList.toggle("selected", isChosen);
+      }
+      try {
+        history.replaceState(null, "", "#" + id);
+      } catch (e) {
+        // preview windows do not allow this
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // search: every word typed must be found in the error text
+    searchBox.addEventListener("input", function () {
+      var words = searchBox.value.toLowerCase().split(" ");
+      var shown = 0;
+
+      for (var c = 0; c < categories.length; c++) {
+        var category = categories[c];
+        var anyShown = false;
+
+        for (var j = 0; j < categoryItems[category].length; j++) {
+          var pageId = categoryItems[category][j];
+          var matches = true;
+          for (var w = 0; w < words.length; w++) {
+            if (words[w] !== "" && searchText[pageId].indexOf(words[w]) === -1) {
+              matches = false;
+            }
+          }
+          menuButtons[pageId].hidden = !matches;
+          if (matches) {
+            anyShown = true;
+            shown++;
+          }
+        }
+        headings[category].hidden = !anyShown;
+      }
+
+      noMatch.hidden = (shown !== 0 || searchBox.value.trim() === "");
+    });
+
+    document.getElementById("printButton").addEventListener("click", function () {
+      window.print();
+    });
+
+    var firstPage = "start";
+    var wanted = location.hash.slice(1);
+    if (pages[wanted]) {
+      firstPage = wanted;
+    }
+    showPage(firstPage);
+  </script>
+</body>
+</html>
