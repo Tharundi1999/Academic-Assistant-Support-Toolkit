@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab Troubleshooter – Programming Lab Decision Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #edf1f3;
+      --card-bg: #ffffff;
+      --text: #12263a;
+      --text-light: #4d6073;
+      --border: #d3dce3;
+      --accent: #a61e2d;
+      --accent-text: #ffffff;
+      --accent-bg: #f7e6e8;
+      --good: #17695a;
+      --good-bg: #e1f1ed;
+      --code-bg: #0f2233;
+      --code-text: #e8f0f5;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #0e1a24;
+        --card-bg: #15232f;
+        --text: #e6eef4;
+        --text-light: #9db0bf;
+        --border: #2a3b4a;
+        --accent: #f0707c;
+        --accent-text: #1a0a0d;
+        --accent-bg: #3a1c22;
+        --good: #5cc7b0;
+        --good-bg: #123a33;
+        --code-bg: #0a121a;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Atkinson Hyperlegible", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .wrapper { max-width: 780px; margin: 0 auto; padding: 24px 16px 40px; }
+
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0; font-size: 1.9rem; line-height: 1.15; }
+    .subtitle { margin: 4px 0 0; color: var(--text-light); }
+
+    .os-toggle { display: inline-flex; border: 2px solid var(--text); border-radius: 8px; overflow: hidden; }
+    .os-toggle button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 7px 14px;
+      border: none;
+      background: none;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .os-toggle button.on { background: var(--text); color: var(--page-bg); font-weight: bold; }
+    .os-label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px; }
+
+    button:focus, input:focus, textarea:focus { outline: 3px solid #8ab4f8; outline-offset: 2px; }
+
+    /* breadcrumb at the top */
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+    .breadcrumb button {
+      font-family: inherit;
+      background: none;
+      border: none;
+      padding: 2px 4px;
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .breadcrumb .here { color: var(--text); font-weight: bold; }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    h2 { margin: 0 0 6px; font-size: 1.35rem; line-height: 1.25; }
+    h3 { margin: 22px 0 8px; font-size: 1.1rem; }
+    .lead { margin: 0 0 18px; color: var(--text-light); }
+
+    .search-box {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--page-bg);
+      color: var(--text);
+    }
+    .results { margin: 10px 0 0; padding: 0; list-style: none; }
+    .results li { margin-bottom: 6px; }
+
+    /* the big buttons */
+    .choices { display: grid; gap: 10px; margin-top: 16px; }
+    .choices.two { grid-template-columns: 1fr 1fr; }
+    .choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 1rem;
+      background: var(--card-bg);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-left: 6px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .choice:hover { border-color: var(--accent); }
+    .choice-title { display: block; font-weight: bold; }
+    .choice-desc { display: block; color: var(--text-light); font-size: 0.93rem; margin-top: 2px; }
+    .choice.small { border-left-width: 2px; padding: 10px 12px; }
+    .choice.small .choice-title { font-weight: normal; }
+    .signature {
+      display: block;
+      margin-top: 3px;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 0.82rem;
+      color: var(--text-light);
+      overflow-wrap: anywhere;
+    }
+
+    .note { background: var(--accent-bg); border-radius: 8px; padding: 10px 14px; margin: 0 0 16px; }
+    .why { margin: 0 0 4px; }
+
+    /* numbered steps */
+    .steps { list-style: none; counter-reset: s; margin: 12px 0 0; padding: 0; }
+    .steps > li {
+      border-top: 1px solid var(--border);
+      padding: 14px 0;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 0 10px;
+    }
+    .steps > li:last-child { border-bottom: 1px solid var(--border); }
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--text);
+      color: var(--page-bg);
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .steps li.done .step-number { background: var(--good); color: white; }
+    .steps li.done .step-text { color: var(--text-light); }
+    .tick-label { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.93rem; color: var(--text-light); }
+    .tick-label input { width: 20px; height: 20px; accent-color: var(--good); }
+    .step-note { margin: 6px 0 0; color: var(--text-light); font-size: 0.95rem; }
+
+    .code {
+      position: relative;
+      margin: 8px 0 0;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 8px;
+      padding: 10px 76px 10px 12px;
+    }
+    .code pre {
+      margin: 0;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .code button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid #5d7387;
+      background: none;
+      color: var(--code-text);
+      cursor: pointer;
+    }
+
+    .verify {
+      margin-top: 18px;
+      background: var(--good-bg);
+      border-left: 6px solid var(--good);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .verify strong { display: block; }
+    .ask { margin-top: 22px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .btn {
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: 2px solid var(--text);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+    .btn.good { background: var(--good); border-color: var(--good); color: white; }
+
+    .help-note {
+      width: 100%;
+      min-height: 220px;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--page-bg);
+      color: var(--text);
+    }
+    .plain-list { margin: 8px 0 0; padding-left: 22px; }
+    .plain-list li { margin-bottom: 4px; }
+    .footer { margin-top: 20px; font-size: 0.88rem; color: var(--text-light); }
+    .good-message { background: var(--good-bg); border-radius: 8px; padding: 14px; }
+    .hidden-text { position: absolute; left: -9999px; }
+
+    @media (max-width: 560px) {
+      .choices.two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <div class="top">
+      <div>
+        <h1>Lab Troubleshooter</h1>
+        <p class="subtitle">Choose your language, pick the problem, then follow the steps.</p>
+      </div>
+      <div>
+        <span class="os-label">My computer</span>
+        <div class="os-toggle">
+          <button type="button" id="winButton" class="on">Windows</button>
+          <button type="button" id="macButton">Mac or Linux</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div id="app"></div>
+
+    <div class="footer">
+      This guide runs in your browser and does not save or send anything you select or type. It covers common setup and coding problems in Python, C, C++ and Java, plus Git and lab computers. Prepared by Tharundi Dunuwila.
+  </div>
+
+  <script>
+    // Each problem is one block in ISSUES. To add a problem, copy a block and change the text.
+    // W("windows text", "mac text") gives a different command for each system.
+
+    var W = function (win, mac) { return { win: win, mac: mac }; };
+
+    var LANGS = [
+      { id: "python", name: "Python", kind: "language", blurb: "Set-up, VS Code and errors in Python code" },
+      { id: "c", name: "C", kind: "language", blurb: "gcc, compiling, linker errors and crashes" },
+      { id: "cpp", name: "C++", kind: "language", blurb: "g++, headers, compiling and crashes" },
+      { id: "java", name: "Java", kind: "language", blurb: "JDK, javac, compile errors and exceptions" },
+      { id: "git", name: "Git and GitHub", kind: "topic", blurb: "Commit, push, pull, conflicts and sign-in problems" },
+      { id: "lab", name: "Lab computer and accounts", kind: "topic", blurb: "Install permissions, saving files and logging in" }
+    ];
+
+    var GROUPS = [
+      { id: "setup", name: "Set-up and tools" },
+      { id: "vscode", name: "VS Code" },
+      { id: "code", name: "Errors in my code" }
+    ];
+
+    var ISSUES = [
+      // Python
+      {
+        id: "py-not-found", langs: ["python"], group: "setup",
+        title: "Python is not recognised, or “command not found”",
+        sig: "'python' is not recognized as an internal or external command",
+        keys: "python not recognised not recognized command not found path installed",
+        why: "Your computer cannot find Python. Python may not be installed, its folder may not be on the PATH (the list of places the terminal looks for programs), or the command may have a different name on your system.",
+        steps: [
+          { t: "Try the other command name for Python.", cmd: W("py --version", "python3 --version"), note: "If a version number appears (for example Python 3.12.x), use that command wherever these steps say python." },
+          { t: "In VS Code, open the Command Palette (Ctrl+Shift+P, or Cmd+Shift+P on Mac), run Python: Select Interpreter and see whether any interpreter is listed." },
+          { t: "On your own computer, install or repair Python from python.org. On Windows, tick “Add python.exe to PATH” on the first installer screen, then choose Install Now." },
+          { t: "Close and reopen VS Code and the terminal (or restart the computer), then check the version again.", cmd: W("py --version", "python3 --version") },
+          { t: "On a lab computer, do not try to install software. Ask a lab assistant or lecturer which Python the lab computers use." }
+        ],
+        verify: "The version command prints a version number such as Python 3.12.x."
+      },
+      {
+        id: "py-module", langs: ["python"], group: "setup",
+        title: "ModuleNotFoundError: No module named …",
+        sig: "ModuleNotFoundError: No module named 'x'",
+        keys: "modulenotfounderror no module named import package install pip numpy pandas",
+        why: "Python cannot find the package you imported. It is not installed in the Python you are running, the name is spelled differently, or VS Code is using a different Python from the one you installed it into.",
+        steps: [
+          { t: "Read the last line of the error. It names the missing module. Check the spelling and capital letters in your import line." },
+          { t: "Find out which Python is running your code.", cmd: W("py -c \"import sys; print(sys.executable)\"", "python3 -c \"import sys; print(sys.executable)\""), note: "This should match the interpreter shown at the bottom right of VS Code." },
+          { t: "Install the package into that same Python.", cmd: W("py -m pip install package-name", "python3 -m pip install package-name"), note: "Some install names differ from import names. For example, import cv2 needs opencv-python, and import sklearn needs scikit-learn." },
+          { t: "If you use a virtual environment, activate it first, then install. See “Set up a virtual environment” under Lab computer and environment." },
+          { t: "Check that none of your own files has the same name as a package (for example random.py or pandas.py). If one does, rename it and delete the __pycache__ folder next to it." }
+        ],
+        verify: "Run your program again. The ModuleNotFoundError no longer appears."
+      },
+      {
+        id: "pip-not-found", langs: ["python"], group: "setup",
+        title: "pip is not recognised",
+        sig: "'pip' is not recognized as an internal or external command",
+        keys: "pip not recognised not recognized command not found install",
+        why: "The pip command is not on your PATH, even though Python itself may be installed correctly.",
+        steps: [
+          { t: "Run pip through Python instead of on its own.", cmd: W("py -m pip --version", "python3 -m pip --version"), note: "If this works, always install with py -m pip install … (Windows) or python3 -m pip install … (Mac/Linux)." },
+          { t: "If it says “No module named pip”, restore it.", cmd: W("py -m ensurepip --upgrade", "python3 -m ensurepip --upgrade") },
+          { t: "On your own computer, if it still fails, run the Python installer again, choose Modify or Repair, and make sure pip is ticked." },
+          { t: "On a lab computer, ask a lab assistant. Installing packages may be restricted." }
+        ],
+        verify: "The pip version command prints a version number and a folder path."
+      },
+      {
+        id: "py-version", langs: ["python"], group: "setup",
+        title: "Code works on one computer but not another (Python version)",
+        sig: "Different Python versions installed",
+        keys: "version python 3 wrong version two versions different computer works",
+        why: "Different Python versions support different features, and many computers have more than one Python installed.",
+        steps: [
+          { t: "Check which version you are running.", cmd: W("py --version", "python3 --version") },
+          { t: "List the Python versions installed on your computer.", cmd: W("py -0", "which -a python3"), note: "On Windows, py -0 lists each version. On Mac or Linux, the command shows where each python3 is." },
+          { t: "Compare with the version your lab sheet or lecturer asks for." },
+          { t: "In VS Code, select the matching interpreter (see “VS Code is using the wrong Python”). Do not uninstall other versions." }
+        ],
+        verify: "The version in the terminal and the version at the bottom right of VS Code match the version your lab needs."
+      },
+      {
+        id: "py-no-output", langs: ["python"], group: "code",
+        title: "My program runs but nothing appears",
+        sig: "No output, no error",
+        keys: "no output nothing prints nothing happens blank run does nothing",
+        why: "Usually the file is not saved, the wrong file is running, or the code defines a function but never calls it or prints the result.",
+        steps: [
+          { t: "Save the file (Ctrl+S, or Cmd+S on Mac). A dot on the file’s tab means it has unsaved changes." },
+          { t: "Look in the Terminal panel at the bottom of VS Code, where the program’s output appears, and not only in the editor." },
+          { t: "Check that your code calls the function and prints the result.", snippet: "def add(a, b):\n    return a + b\n\nprint(add(2, 3))   # prints 5" },
+          { t: "Check you are running the file you are editing. The file name in the terminal command should match the tab you have open." }
+        ],
+        verify: "You can see the expected output in the Terminal panel."
+      },
+
+      // Vs Code
+      {
+        id: "vs-extension", langs: ["python"], group: "vscode",
+        title: "No Run button, or Python features are missing",
+        sig: "No ▶ Run Python File button",
+        keys: "extension run button missing python extension vs code install",
+        why: "The Python extension is not installed or has not switched on.",
+        steps: [
+          { t: "Open Extensions (Ctrl+Shift+X, or Cmd+Shift+X on Mac)." },
+          { t: "Search for “Python” and install the one published by Microsoft." },
+          { t: "Open a file ending in .py. The extension switches on when a Python file is open." },
+          { t: "Reload VS Code: open the Command Palette and run Developer: Reload Window." }
+        ],
+        verify: "A ▶ button appears at the top right of a .py file, and a Python version appears at the bottom right."
+      },
+      {
+        id: "vs-interpreter", langs: ["python"], group: "vscode",
+        title: "VS Code is using the wrong Python (or none)",
+        sig: "Python interpreter could not be found / Select Interpreter",
+        keys: "interpreter select wrong python vs code none selected",
+        why: "VS Code has to be told which Python to use. If it has picked a different one from the Python where you installed your packages, you get missing-module errors and wrong versions.",
+        steps: [
+          { t: "Open the Command Palette (Ctrl+Shift+P, or Cmd+Shift+P) and run Python: Select Interpreter." },
+          { t: "Choose the one that matches the version you expect. If you use a virtual environment, choose the entry with .venv in its path." },
+          { t: "If the list is empty, Python may not be installed or VS Code cannot see it. See “Python is not recognised”." },
+          { t: "Reload the window (Developer: Reload Window) and check the Python version at the bottom right." }
+        ],
+        verify: "The version at the bottom right of VS Code is the one you chose."
+      },
+      {
+        id: "vs-import-squiggle", langs: ["python"], group: "vscode",
+        title: "Import could not be resolved (yellow squiggle)",
+        sig: "Import \"x\" could not be resolved Pylance",
+        keys: "import could not be resolved pylance yellow squiggle underline warning",
+        why: "The editor is looking in a different Python from the one where you installed the package. The code often still runs, but the warning means the interpreter and the package do not match.",
+        steps: [
+          { t: "Select the interpreter that has the package: Command Palette, then Python: Select Interpreter." },
+          { t: "Check the package is installed for that interpreter.", cmd: W("py -m pip show package-name", "python3 -m pip show package-name"), note: "If it says “Package(s) not found”, install it with pip install." },
+          { t: "Reload the window (Developer: Reload Window)." },
+          { t: "If you use a virtual environment, open the folder that contains .venv (File, then Open Folder) so VS Code can find it." }
+        ],
+        verify: "The squiggle disappears when you hover away and reopen the file."
+      },
+      {
+        id: "vs-scripts-disabled", langs: ["python"], group: "vscode", onlyWin: true,
+        title: "“Running scripts is disabled on this system” in the terminal",
+        sig: "cannot be loaded because running scripts is disabled on this system",
+        keys: "running scripts disabled powershell execution policy activate venv",
+        why: "Windows PowerShell blocks the script that switches on a virtual environment. This problem only happens on Windows.",
+        steps: [
+          { t: "Switch the terminal to Command Prompt: in the Terminal panel, click the arrow next to the + button and choose Command Prompt." },
+          { t: "Activate your virtual environment from Command Prompt.", cmd: W(".venv\\Scripts\\activate.bat", null) },
+          { t: "On your own laptop only, you can allow local scripts for your user account.", cmd: W("Set-ExecutionPolicy -Scope CurrentUser RemoteSigned", null) },
+          { t: "On a lab computer, do not change security settings. Use Command Prompt or ask a lab assistant." }
+        ],
+        verify: "The prompt starts with (.venv) after activation."
+      },
+      {
+        id: "vs-wrong-folder", langs: ["python"], group: "vscode",
+        title: "File not found, or VS Code opened the wrong folder",
+        sig: "FileNotFoundError: [Errno 2] No such file or directory",
+        keys: "filenotfounderror file not found wrong folder no such file directory open folder path csv data",
+        why: "Python looks for files starting from the folder the terminal is in. If VS Code opened a different folder, relative file names will not be found.",
+        steps: [
+          { t: "Open the right folder: File, then Open Folder, and choose the folder that contains your code and data files." },
+          { t: "Check where the terminal is.", cmd: W("cd", "pwd") },
+          { t: "List the files in that folder and compare with your file name.", cmd: W("dir", "ls") },
+          { t: "Check the file name and extension carefully. Windows can hide extensions, so data.csv may really be data.csv.txt." },
+          { t: "If you use a full Windows path, put r before the quotes, like r\"C:\\Users\\name\\data.csv\", or use forward slashes." }
+        ],
+        verify: "Your program opens the file without a FileNotFoundError."
+      },
+
+      // Git
+      {
+        id: "git-not-found", langs: ["git"], group: "",
+        title: "git is not recognised",
+        sig: "'git' is not recognized as an internal or external command",
+        keys: "git not recognised not recognized command not found install",
+        why: "Git is not installed, or the terminal was opened before Git was installed.",
+        steps: [
+          { t: "Check whether Git is installed.", cmd: "git --version" },
+          { t: "On your own computer, install Git from git-scm.com using the default options." },
+          { t: "Close and reopen VS Code and the terminal, then check again.", cmd: "git --version" },
+          { t: "On a lab computer, ask a lab assistant. Do not install software yourself." }
+        ],
+        verify: "A message such as “git version 2.xx” appears."
+      },
+      {
+        id: "git-not-repo", langs: ["git"], group: "",
+        title: "fatal: not a git repository",
+        sig: "fatal: not a git repository (or any of the parent directories): .git",
+        keys: "not a git repository fatal git status init clone folder",
+        why: "The terminal is in a folder that Git is not tracking.",
+        steps: [
+          { t: "Check which folder the terminal is in.", cmd: W("cd", "pwd") },
+          { t: "Move into your project folder, or open it in VS Code with File, then Open Folder.", cmd: "cd path/to/your-project" },
+          { t: "Check that Git recognises the folder.", cmd: "git status" },
+          { t: "If this is a brand-new project, start tracking it with git init. If the project already exists on GitHub, use git clone with its URL instead of git init." }
+        ],
+        verify: "git status prints the branch name instead of an error."
+      },
+      {
+        id: "git-identity", langs: ["git"], group: "",
+        title: "“Please tell me who you are” when committing",
+        sig: "Author identity unknown / *** Please tell me who you are.",
+        keys: "author identity unknown please tell me who you are user.name user.email commit config",
+        why: "Git adds your name and email to every commit and does not have them yet.",
+        steps: [
+          { t: "Set your name and email.", cmd: "git config --global user.name \"Your Name\"\ngit config --global user.email \"you@example.com\"", note: "Use the same email as your GitHub account." },
+          { t: "On a shared lab computer, leave out --global and run the commands inside your project folder, so the setting applies only to that project." },
+          { t: "Run your commit again.", cmd: "git commit -m \"Describe your change\"" }
+        ],
+        verify: "The commit completes and shows the number of files changed."
+      },
+      {
+        id: "git-push-rejected", langs: ["git"], group: "",
+        title: "git push is rejected",
+        sig: "! [rejected] main -> main (fetch first) / non-fast-forward",
+        keys: "push rejected fetch first non-fast-forward updates were rejected pull",
+        why: "The copy on GitHub has changes you do not have yet, so Git will not overwrite them.",
+        steps: [
+          { t: "Save your work and commit it first.", cmd: "git status" },
+          { t: "Bring in the changes from GitHub.", cmd: "git pull" },
+          { t: "If Git reports a conflict, follow “Merge conflict” in this guide." },
+          { t: "Push again.", cmd: "git push" },
+          { t: "Do not use git push --force unless a lecturer tells you to. It can delete other people’s work." }
+        ],
+        verify: "git push finishes without an error, and your commit appears on GitHub."
+      },
+      {
+        id: "git-conflict", langs: ["git"], group: "",
+        title: "Merge conflict",
+        sig: "CONFLICT (content): Merge conflict in file.py",
+        keys: "merge conflict conflict markers <<<<<<< ======= >>>>>>> pull rebase",
+        why: "You and someone else (or you on another computer) changed the same lines, and Git cannot decide which version to keep.",
+        steps: [
+          { t: "List the files with conflicts. They are marked as both modified.", cmd: "git status" },
+          { t: "Open each file and find the conflict markers.", snippet: "<<<<<<< HEAD\nyour version of the lines\n=======\nthe other version of the lines\n>>>>>>> branch-name" },
+          { t: "Edit the file so it contains the code you want to keep, and delete the three marker lines. VS Code also shows Accept Current, Accept Incoming and Accept Both buttons above each conflict." },
+          { t: "Run your program to check it still works." },
+          { t: "Mark the conflict as resolved and save the result.", cmd: "git add file.py\ngit commit -m \"Resolve merge conflict\"" },
+          { t: "Push your work.", cmd: "git push" }
+        ],
+        verify: "git status shows no files with conflicts and your program runs."
+      },
+      {
+        id: "git-auth", langs: ["git"], group: "",
+        title: "Authentication failed when pushing or cloning",
+        sig: "Authentication failed / Support for password authentication was removed",
+        keys: "authentication failed password token github sign in credentials remote",
+        why: "GitHub does not accept your account password for Git commands over HTTPS. You need to sign in through the browser or use a personal access token.",
+        steps: [
+          { t: "Check the address of the remote repository.", cmd: "git remote -v" },
+          { t: "When Git or VS Code opens a browser sign-in window, sign in to GitHub there." },
+          { t: "Or create a personal access token on GitHub (Settings, then Developer settings, then Personal access tokens) and paste it where Git asks for the password." },
+          { t: "Never share your token or put it in code you upload." },
+          { t: "On a shared computer, sign out and clear saved credentials when you finish." }
+        ],
+        verify: "git push or git clone completes without asking again."
+      },
+      {
+        id: "git-publickey", langs: ["git"], group: "",
+        title: "Permission denied (publickey)",
+        sig: "git@github.com: Permission denied (publickey)",
+        keys: "permission denied publickey ssh key github remote url",
+        why: "The repository address uses SSH (it starts with git@github.com), but no SSH key is set up on this computer.",
+        steps: [
+          { t: "Look at the remote address.", cmd: "git remote -v" },
+          { t: "The easiest fix is to switch to the HTTPS address.", cmd: "git remote set-url origin https://github.com/USERNAME/REPOSITORY.git" },
+          { t: "Alternatively, set up an SSH key by following GitHub’s guide “Connecting to GitHub with SSH”." },
+          { t: "Try your command again." }
+        ],
+        verify: "The command completes without a permission error."
+      },
+
+      // Environment
+      {
+        id: "env-venv", langs: ["python"], group: "setup",
+        title: "Set up a virtual environment",
+        sig: "python -m venv .venv",
+        keys: "virtual environment venv activate deactivate packages isolated project",
+        why: "A virtual environment gives each project its own Python packages, so installs do not clash and you do not need administrator rights.",
+        steps: [
+          { t: "Open a terminal in your project folder and create the environment.", cmd: W("py -m venv .venv", "python3 -m venv .venv") },
+          { t: "Activate it.", cmd: W(".venv\\Scripts\\activate", "source .venv/bin/activate"), note: "On Windows PowerShell, if you see “running scripts is disabled”, use Command Prompt (see VS Code problems)." },
+          { t: "Check that the prompt now starts with (.venv)." },
+          { t: "Install packages while it is active.", cmd: "python -m pip install package-name" },
+          { t: "In VS Code, run Python: Select Interpreter and choose the one with .venv in its path." },
+          { t: "When you have finished, switch it off.", cmd: "deactivate" }
+        ],
+        verify: "The prompt shows (.venv) and VS Code shows the .venv interpreter at the bottom right."
+      },
+      {
+        id: "env-permission", langs: ["lab"], group: "",
+        title: "Cannot install software or save files on a lab computer",
+        sig: "Access is denied / PermissionError / Could not install packages due to an OSError",
+        keys: "access denied permission error admin rights install lab computer restricted save",
+        why: "Lab computers usually restrict what you can install and where you can save, to keep them secure and consistent.",
+        steps: [
+          { t: "Do not try to get around the restrictions." },
+          { t: "For Python packages, try installing for your user account only.", cmd: W("py -m pip install --user package-name", "python3 -m pip install --user package-name") },
+          { t: "A better option is a virtual environment in your own storage area. See “Set up a virtual environment”." },
+          { t: "Save your work in your university storage area or project folder, not in system folders such as Program Files or C:\\Windows." },
+          { t: "If it is still blocked, tell a lab assistant exactly what you tried to install." }
+        ],
+        verify: "The package installs, or a lab assistant confirms what is allowed."
+      },
+      {
+        id: "env-login", langs: ["lab"], group: "",
+        title: "Cannot log in to Moodle, or cannot find the lab files",
+        sig: "Login fails / module page not visible / files missing",
+        keys: "moodle login password cannot access lab files module page vpn wifi",
+        why: "Login and access problems usually come from the network, an old saved password, or not being enrolled on the module page yet.",
+        steps: [
+          { t: "Check your internet connection. If you are off campus, check whether the university asks you to use a VPN or remote access service." },
+          { t: "Test your university username and password somewhere else, such as university email, to see whether the password is the problem." },
+          { t: "Try a private (incognito) browser window, or clear the browser’s cache and cookies for the site." },
+          { t: "Check you are looking at the right module page and the right week or section." },
+          { t: "If the problem continues, tell your lecturer or the university IT helpdesk what message you see." }
+        ],
+        verify: "You can open the module page and download the lab files."
+      },
+
+      // Code Errors
+      {
+        id: "code-syntax", langs: ["python"], group: "code",
+        title: "SyntaxError: invalid syntax",
+        sig: "SyntaxError: invalid syntax / expected ':'",
+        keys: "syntaxerror invalid syntax colon bracket quote equals",
+        why: "Python cannot understand the structure of a line. The real mistake is often on that line or the one just above it.",
+        steps: [
+          { t: "Read the line Python shows and look at the ^ marker. Then check the line above it." },
+          { t: "Check every if, elif, else, for, while, def and class line ends with a colon.", snippet: "if score > 50:      # colon needed\n    print(\"Pass\")" },
+          { t: "Check every bracket and quote has a partner: (  ), [  ], { }, \" \" and ' '." },
+          { t: "Use = to store a value and == to compare two values." }
+        ],
+        verify: "The program starts running instead of stopping with SyntaxError."
+      },
+      {
+        id: "code-indent", langs: ["python"], group: "code",
+        title: "IndentationError",
+        sig: "IndentationError: expected an indented block / unindent does not match",
+        keys: "indentationerror indent spaces tabs expected an indented block unindent",
+        why: "Python uses spaces at the start of a line to show which lines belong together. The spacing is inconsistent or missing.",
+        steps: [
+          { t: "Indent every line inside an if, for, while, def or class by the same amount (4 spaces is standard).", snippet: "def greet():\n    print(\"Hello\")   # indented 4 spaces" },
+          { t: "Do not mix tabs and spaces. In VS Code, click “Spaces” or “Tab Size” at the bottom right and choose Convert Indentation to Spaces." },
+          { t: "Select the lines and press Tab to indent or Shift+Tab to un-indent them together." }
+        ],
+        verify: "All lines in each block line up, and the program runs."
+      },
+      {
+        id: "code-name", langs: ["python"], group: "code",
+        title: "NameError: name is not defined",
+        sig: "NameError: name 'x' is not defined",
+        keys: "nameerror not defined variable spelling import function scope",
+        why: "You used a name that Python does not know at that point in the program.",
+        steps: [
+          { t: "Check the spelling and the capital letters. total and Total are different names." },
+          { t: "Check the variable or function is defined before the line that uses it." },
+          { t: "If it comes from a library, check you imported it, for example import math." },
+          { t: "A variable created inside a function cannot be used outside it. Return it from the function instead." },
+          { t: "Text needs quotes. print(hello) looks for a variable named hello, while print(\"hello\") prints the word." }
+        ],
+        verify: "The line that raised the error now runs."
+      },
+      {
+        id: "code-type", langs: ["python"], group: "code",
+        title: "TypeError",
+        sig: "TypeError: can only concatenate str (not \"int\") to str",
+        keys: "typeerror concatenate str int unsupported operand input convert",
+        why: "You combined or used values of types that do not work together, such as text and a number.",
+        steps: [
+          { t: "Read the whole message. It names the two types involved." },
+          { t: "Convert the value to the type you need.", snippet: "age = int(input(\"Age: \"))        # input() returns text\nprint(\"Age: \" + str(age))       # numbers need str() to join text" },
+          { t: "If a message says something is “not callable”, check for a missing operator or an extra pair of brackets after a variable name." },
+          { t: "Check a value’s type while debugging.", snippet: "print(type(x))" }
+        ],
+        verify: "The line runs without a TypeError."
+      },
+      {
+        id: "code-index", langs: ["python"], group: "code",
+        title: "IndexError or KeyError",
+        sig: "IndexError: list index out of range / KeyError: 'name'",
+        keys: "indexerror keyerror list index out of range dictionary key missing",
+        why: "You asked for a position in a list, or a key in a dictionary, that does not exist.",
+        steps: [
+          { t: "Lists start at 0. A list with 3 items has positions 0, 1 and 2, and the last item is also my_list[-1]." },
+          { t: "Check how long the list is before choosing a position.", snippet: "print(len(my_list))" },
+          { t: "For a KeyError, check the key’s spelling and capital letters, or use .get() so a missing key does not crash the program.", snippet: "ages = {\"Sam\": 21}\nprint(ages.get(\"Alex\", \"not found\"))" },
+          { t: "In a loop, make sure the range stops at len(my_list), not beyond it." }
+        ],
+        verify: "The program runs through the list or dictionary without stopping."
+      },
+      {
+        id: "code-loop", langs: ["python"], group: "code",
+        title: "My program never stops (infinite loop)",
+        sig: "Terminal keeps running or repeating",
+        keys: "infinite loop never stops freezes while true hang keeps running",
+        why: "The condition of a while loop never becomes false, so the loop repeats forever.",
+        steps: [
+          { t: "Stop the program: click in the terminal and press Ctrl+C." },
+          { t: "Look at the while condition. Something inside the loop must change the values it checks.", snippet: "count = 0\nwhile count < 5:\n    print(count)\n    count = count + 1   # without this line the loop never ends" },
+          { t: "If you use while True, make sure there is a break that can be reached." }
+        ],
+        verify: "The program finishes by itself."
+      },
+
+      // C And C++
+      {
+        id: "cc-compiler", langs: ["c", "cpp"], group: "setup",
+        title: "gcc or g++ is not recognised (compiler not found)",
+        sig: "'gcc' is not recognized as an internal or external command",
+        keys: "gcc g++ compiler not found not recognised not recognized command not found mingw msys2 clang build-essential install path",
+        why: "C and C++ programs must be compiled before they can run. The compiler (gcc for C, g++ for C++) is either not installed or its folder is not on the PATH.",
+        steps: [
+          { t: "Check whether the compilers are available.", cmd: "gcc --version\ng++ --version", note: "If both print a version number, the compiler is fine. On a Mac, gcc is usually Apple clang, which is also fine for lab work." },
+          { os: "win", t: "On your own Windows computer, install the MinGW-w64 toolchain through MSYS2 (follow the C++ setup page in the VS Code documentation). Then run this in the MSYS2 UCRT64 terminal.", cmd: "pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain" },
+          { os: "win", t: "Add the compiler folder to your PATH, usually C:\\msys64\\ucrt64\\bin, then open a new terminal." },
+          { os: "mac", t: "On a Mac, install the command line tools.", cmd: "xcode-select --install", note: "On Debian or Ubuntu Linux, use: sudo apt install build-essential" },
+          { t: "Close and reopen VS Code and the terminal, then run the version commands again." },
+          { t: "On a lab computer, do not install anything. Ask a lab assistant which compiler the lab uses." }
+        ],
+        verify: "Both commands print a version number."
+      },
+      {
+        id: "c-run", langs: ["c"], group: "setup",
+        title: "How to compile and run a C program",
+        sig: "gcc hello.c -o hello",
+        keys: "compile run c program gcc output exe hello how to build executable",
+        why: "C is compiled: gcc turns your .c file into a program, and then you run that program. Saving the file does not update the program, so you must compile again after every change.",
+        steps: [
+          { t: "Save your file, for example hello.c, in your project folder and open the terminal in that folder." },
+          { t: "Compile it with warnings switched on.", cmd: "gcc -Wall -Wextra -g hello.c -o hello", note: "-Wall and -Wextra show warnings about likely mistakes. -g lets the debugger show line numbers. -o hello names the program." },
+          { t: "Run the program.", cmd: W(".\\hello", "./hello"), note: "In Windows Command Prompt you can type hello. In PowerShell, type .\\hello." },
+          { t: "If you use maths functions such as sqrt or pow, add -lm at the end of the compile command.", cmd: "gcc -Wall -Wextra -g hello.c -o hello -lm" },
+          { t: "Compile again every time you change the code, then run the new program." }
+        ],
+        verify: "The program prints its output in the terminal."
+      },
+      {
+        id: "cpp-run", langs: ["cpp"], group: "setup",
+        title: "How to compile and run a C++ program",
+        sig: "g++ hello.cpp -o hello",
+        keys: "compile run c++ cpp program g++ output exe hello how to build executable",
+        why: "C++ is compiled: g++ turns your .cpp file into a program, and then you run that program. Saving the file does not update the program, so you must compile again after every change.",
+        steps: [
+          { t: "Save your file, for example hello.cpp, in your project folder and open the terminal in that folder." },
+          { t: "Compile it with warnings switched on.", cmd: "g++ -Wall -Wextra -g hello.cpp -o hello", note: "-Wall and -Wextra show warnings about likely mistakes. -g lets the debugger show line numbers. If your lab uses a specific standard, add for example -std=c++17." },
+          { t: "Run the program.", cmd: W(".\\hello", "./hello"), note: "In Windows Command Prompt you can type hello. In PowerShell, type .\\hello." },
+          { t: "Use g++ (not gcc) for .cpp files, so the C++ libraries are linked." },
+          { t: "Compile again every time you change the code, then run the new program." }
+        ],
+        verify: "The program prints its output in the terminal."
+      },
+      {
+        id: "cc-vscode", langs: ["c", "cpp"], group: "vscode",
+        title: "No Run button, or VS Code cannot build my C or C++ file",
+        sig: "Run C/C++ File is missing / red squiggles under #include",
+        keys: "vs code c c++ extension run button build task intellisense include squiggle compiler path",
+        why: "VS Code needs the C/C++ extension and a compiler it can find before it can build and run your file.",
+        steps: [
+          { t: "Open Extensions (Ctrl+Shift+X, or Cmd+Shift+X on Mac), search for “C/C++” and install the one published by Microsoft." },
+          { t: "Check the compiler works in the terminal.", cmd: "gcc --version" },
+          { t: "Open your .c or .cpp file and click the ▶ arrow at the top right, then choose Run C/C++ File and pick the gcc or g++ compiler. You can also press Ctrl+Shift+B (Cmd+Shift+B on Mac) and choose the build task for your compiler." },
+          { t: "If #include lines have red squiggles, open the Command Palette and run C/C++: Edit Configurations (UI), then check the compiler path." },
+          { t: "Save the file before building." }
+        ],
+        verify: "The program builds, and its output appears in the terminal."
+      },
+      {
+        id: "cc-semicolon", langs: ["c", "cpp"], group: "code",
+        title: "error: expected ';' before …",
+        sig: "error: expected ';' before 'return'",
+        keys: "expected semicolon before error compile missing ; statement syntax brace bracket",
+        why: "The compiler reached the end of a statement and found no semicolon. The missing one is usually on the line above the line the error points to.",
+        steps: [
+          { t: "Look at the line the error names, then at the line above it." },
+          { t: "End every statement with a semicolon.", snippet: "int total = 5;     // semicolon needed\nreturn 0;" },
+          { t: "Check that every ( has a ), every { has a }, and every quote is closed." },
+          { t: "Fix the first error in the list first and compile again. Later errors are often caused by the first one." }
+        ],
+        verify: "The program compiles without errors."
+      },
+      {
+        id: "cc-undefined", langs: ["c", "cpp"], group: "code",
+        title: "undefined reference to …",
+        sig: "undefined reference to `add' / ld returned 1 exit status",
+        keys: "undefined reference linker error ld returned 1 exit status function missing main compile files lm",
+        why: "The compiler found the function’s declaration, but the linker cannot find the function’s code. This is a linking problem, not a spelling problem in one line.",
+        steps: [
+          { t: "Check that the function has a body (code inside { }), and that its name and parameters match exactly where it is declared and where it is defined." },
+          { lang: "c", t: "If the function is in another file, compile all the .c files together.", cmd: "gcc main.c add.c -o app" },
+          { lang: "cpp", t: "If the function is in another file, compile all the .cpp files together.", cmd: "g++ main.cpp add.cpp -o app" },
+          { lang: "c", t: "For maths functions such as sqrt and pow, add -lm at the end.", cmd: "gcc main.c -o app -lm" },
+          { t: "If the message says undefined reference to `main', your program has no main function, or you compiled the wrong file. There must be exactly one main." },
+          { t: "Do not #include a .c or .cpp file. Include header (.h) files and compile the source files together." }
+        ],
+        verify: "The program compiles and links, and the program file is created."
+      },
+      {
+        id: "c-implicit", langs: ["c"], group: "code",
+        title: "implicit declaration of function …",
+        sig: "warning: implicit declaration of function 'printf'",
+        keys: "implicit declaration function printf scanf include stdio.h header missing warning error",
+        why: "You used a function before the compiler knew it existed. Usually the #include line is missing. Newer compiler versions treat this as an error, older ones as a warning.",
+        steps: [
+          { t: "Add the header for the function you use.", snippet: "#include <stdio.h>    // printf, scanf\n#include <stdlib.h>   // malloc, free, exit\n#include <string.h>   // strlen, strcpy\n#include <math.h>     // sqrt, pow (also add -lm)" },
+          { t: "If it is your own function, define it above main, or add a prototype above main.", snippet: "int add(int a, int b);   // prototype\n\nint main(void) {\n    return add(2, 3);\n}" },
+          { t: "Compile with -Wall so you see warnings, and treat every warning as a problem to fix." }
+        ],
+        verify: "The warning no longer appears when you compile."
+      },
+      {
+        id: "cc-undeclared", langs: ["c", "cpp"], group: "code",
+        title: "‘x’ undeclared / was not declared in this scope",
+        sig: "error: 'count' undeclared (first use in this function) / 'count' was not declared in this scope",
+        keys: "undeclared not declared in this scope variable first use function error compile spelling",
+        why: "The compiler does not know the name at that point. It was never declared, it is spelled differently, or it is outside the block where it was declared.",
+        steps: [
+          { t: "Check the spelling and capital letters. C and C++ are case sensitive, so count and Count are different." },
+          { t: "Declare the variable with its type before you use it.", snippet: "int count = 0;" },
+          { t: "A variable declared inside { } or inside a for loop cannot be used outside it. Declare it before the block." },
+          { t: "Look at the line above for another error, such as a missing semicolon, that stopped the declaration working." }
+        ],
+        verify: "The line compiles without the error."
+      },
+      {
+        id: "cpp-cout", langs: ["cpp"], group: "code",
+        title: "‘cout’ or ‘string’ was not declared",
+        sig: "error: 'cout' was not declared in this scope / 'string' does not name a type",
+        keys: "cout cin string not declared does not name a type iostream include std namespace",
+        why: "In C++ these names belong to the std namespace and need their header files.",
+        steps: [
+          { t: "Include the headers and use the std:: prefix (or add using namespace std; if your lab allows it).", snippet: "#include <iostream>\n#include <string>\n\nint main() {\n    std::string name = \"Sam\";\n    std::cout << \"Hello \" << name << std::endl;\n    return 0;\n}" },
+          { t: "Save the file as .cpp and compile it with g++, not gcc." }
+        ],
+        verify: "The program compiles and prints the message."
+      },
+      {
+        id: "cc-segfault", langs: ["c", "cpp"], group: "code",
+        title: "Segmentation fault (program crashes)",
+        sig: "Segmentation fault (core dumped)",
+        keys: "segmentation fault segfault crash core dumped pointer null array out of bounds scanf recursion",
+        why: "The program tried to use memory it is not allowed to use. Common causes are an array index outside the array, a NULL or unset pointer, using memory after it was freed, a missing & in scanf, or recursion that never ends. On Windows the program may simply stop without a message.",
+        steps: [
+          { lang: "c", t: "Recompile with debugging information and warnings.", cmd: "gcc -g -Wall -Wextra main.c -o main" },
+          { lang: "cpp", t: "Recompile with debugging information and warnings.", cmd: "g++ -g -Wall -Wextra main.cpp -o main" },
+          { lang: "c", t: "Check every scanf call. Variables other than arrays need & in front.", snippet: "scanf(\"%d\", &age);   // & is required" },
+          { lang: "c", t: "Check array loops. An array of 3 items has positions 0, 1 and 2.", snippet: "int nums[3] = {1, 2, 3};\nfor (int i = 0; i < 3; i++) {   // use <, not <=\n    printf(\"%d\\n\", nums[i]);\n}" },
+          { lang: "cpp", t: "Check array loops. An array of 3 items has positions 0, 1 and 2.", snippet: "int nums[3] = {1, 2, 3};\nfor (int i = 0; i < 3; i++) {   // use <, not <=\n    std::cout << nums[i] << std::endl;\n}" },
+          { t: "Check pointers. Set them to NULL (nullptr in C++) when unused, test them before use, and never use memory after free or delete." },
+          { t: "Find the line that crashes: in VS Code, click left of a line number to set a breakpoint, press F5, and step with F10 until it crashes." },
+          { os: "mac", lang: "c", t: "On Mac or Linux, AddressSanitizer reports the exact line.", cmd: "gcc -g -fsanitize=address main.c -o main" },
+          { os: "mac", lang: "cpp", t: "On Mac or Linux, AddressSanitizer reports the exact line.", cmd: "g++ -g -fsanitize=address main.cpp -o main" }
+        ],
+        verify: "The program runs to the end without crashing."
+      },
+      {
+        id: "loop-cc", langs: ["c", "cpp"], group: "code",
+        title: "My program never stops (infinite loop)",
+        sig: "Terminal keeps running or repeating",
+        keys: "infinite loop never stops freezes while true hang keeps running for loop",
+        why: "The condition of a loop never becomes false, so the loop repeats forever.",
+        steps: [
+          { t: "Stop the program: click in the terminal and press Ctrl+C." },
+          { t: "Look at the loop condition. Something inside the loop must change the values it checks.", snippet: "int count = 0;\nwhile (count < 5) {\n    printf(\"%d\\n\", count);\n    count++;   // without this line the loop never ends\n}" },
+          { t: "Check that you wrote == (compare) and not = (assign) inside conditions." }
+        ],
+        verify: "The program finishes by itself."
+      },
+
+      // Java
+      {
+        id: "java-jdk", langs: ["java"], group: "setup",
+        title: "javac or java is not recognised",
+        sig: "'javac' is not recognized as an internal or external command",
+        keys: "javac java not recognised not recognized command not found jdk jre path java_home install version",
+        why: "To compile Java you need the JDK (Java Development Kit). A computer can have java (the runtime) but not javac (the compiler), or the JDK folder may not be on the PATH.",
+        steps: [
+          { t: "Check both commands.", cmd: "java -version\njavac -version", note: "Both should print a version, and the main version number should match (for example 17 or 21)." },
+          { t: "If java works but javac does not, you have a runtime but not a JDK. On your own computer, install a JDK (for example Eclipse Temurin), using the version your lab asks for." },
+          { t: "Make sure the JDK’s bin folder is on your PATH, or that JAVA_HOME points to the JDK folder. On Windows, search the Start menu for “Edit the system environment variables”." },
+          { t: "Close and reopen VS Code and the terminal, then check the versions again." },
+          { t: "On a lab computer, do not install anything. Ask a lab assistant which Java version the lab uses." }
+        ],
+        verify: "Both java -version and javac -version print a version number."
+      },
+      {
+        id: "java-run", langs: ["java"], group: "setup",
+        title: "How to compile and run a Java program",
+        sig: "javac Hello.java  then  java Hello",
+        keys: "compile run java program javac class file hello how to build main",
+        why: "Java is compiled to a .class file first, and then you run the class by its name. The file name must match the public class name.",
+        steps: [
+          { t: "Save the file as Hello.java. It must contain a public class called Hello, with exactly the same capital letters.", snippet: "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, lab!\");\n    }\n}" },
+          { t: "Compile it. This creates Hello.class.", cmd: "javac Hello.java" },
+          { t: "Run it using the class name, without .java or .class.", cmd: "java Hello" },
+          { t: "In newer Java versions (11 and later), you can also run a single file in one step.", cmd: "java Hello.java" },
+          { t: "Compile again every time you change the code." }
+        ],
+        verify: "The program prints Hello, lab! in the terminal."
+      },
+      {
+        id: "java-vscode", langs: ["java"], group: "vscode",
+        title: "Java will not run in VS Code",
+        sig: "No Run link above main / Java runtime could not be located",
+        keys: "vs code java extension pack run debug main jdk runtime could not be located",
+        why: "VS Code needs the Java extensions and a JDK before it can run Java files.",
+        steps: [
+          { t: "Make sure a JDK is installed. See “javac or java is not recognised”." },
+          { t: "Open Extensions (Ctrl+Shift+X, or Cmd+Shift+X on Mac), search for “Extension Pack for Java” and install the one published by Microsoft." },
+          { t: "Open the folder that contains your .java files (File, then Open Folder), not just a single file." },
+          { t: "Click the Run link that appears above public static void main, or the ▶ button at the top right." },
+          { t: "If a message says the Java runtime cannot be located, install a JDK, then run Developer: Reload Window from the Command Palette." }
+        ],
+        verify: "The program runs and its output appears in the terminal."
+      },
+      {
+        id: "java-publicclass", langs: ["java"], group: "code",
+        title: "class X is public, should be declared in a file named X.java",
+        sig: "error: class Hello is public, should be declared in a file named Hello.java",
+        keys: "public class should be declared in a file named file name class name mismatch",
+        why: "In Java, a public class must be saved in a file with exactly the same name as the class, including capital letters.",
+        steps: [
+          { t: "Rename the file so it matches the public class exactly. A class called Hello must be in Hello.java, not hello.java or Main.java." },
+          { t: "Or change the class name inside the file to match the file name." },
+          { t: "Use only one public class per file." },
+          { t: "Compile again.", cmd: "javac Hello.java" }
+        ],
+        verify: "The file compiles and a .class file appears."
+      },
+      {
+        id: "java-symbol", langs: ["java"], group: "code",
+        title: "cannot find symbol",
+        sig: "error: cannot find symbol",
+        keys: "cannot find symbol variable method class import spelling capital string scanner",
+        why: "The compiler does not recognise a name you used: a variable, a method or a class.",
+        steps: [
+          { t: "Read the lines under the error. The line starting “symbol:” gives the name, and “location:” tells you where." },
+          { t: "Check the spelling and the capital letters. Java is case sensitive: String is correct, string is not, and System.out is correct, system.out is not." },
+          { t: "Check the variable is declared before it is used and is inside the block where you use it." },
+          { t: "Classes outside java.lang need an import at the top of the file.", snippet: "import java.util.Scanner;\nimport java.util.ArrayList;" },
+          { t: "Check the method name and the arguments match how the method is defined." }
+        ],
+        verify: "The file compiles without the error."
+      },
+      {
+        id: "java-brace", langs: ["java"], group: "code",
+        title: "‘;’ expected, or reached end of file while parsing",
+        sig: "error: ';' expected / error: reached end of file while parsing",
+        keys: "semicolon expected reached end of file while parsing brace bracket missing closing syntax",
+        why: "A semicolon is missing, or a closing brace } is missing, so the compiler ran out of code before the structure was complete.",
+        steps: [
+          { t: "Look at the line the error names and the line above it. End each statement with a semicolon." },
+          { t: "Check every { has a matching }. In VS Code, run Format Document (Shift+Alt+F) so the indentation shows where a brace is missing." },
+          { t: "Fix the first error in the list first, then compile again." }
+        ],
+        verify: "The file compiles without errors."
+      },
+      {
+        id: "java-lossy", langs: ["java"], group: "code",
+        title: "incompatible types: possible lossy conversion",
+        sig: "error: incompatible types: possible lossy conversion from double to int",
+        keys: "incompatible types lossy conversion double int cast decimal",
+        why: "You tried to put a value with decimals into a variable that can only hold whole numbers, so information would be lost.",
+        steps: [
+          { t: "Use a variable type that fits the value.", snippet: "double half = 7 / 2.0;   // 3.5" },
+          { t: "Or convert on purpose with a cast, if you want to drop the decimals.", snippet: "int half = (int) (7 / 2.0);   // 3" }
+        ],
+        verify: "The file compiles and the value is what you expect."
+      },
+      {
+        id: "java-main", langs: ["java"], group: "code",
+        title: "Could not find or load main class",
+        sig: "Error: Could not find or load main class Hello / Main method not found in class",
+        keys: "could not find or load main class main method not found package classpath run java",
+        why: "Java cannot find the class you asked it to run, or the class does not have a correct main method.",
+        steps: [
+          { t: "Check you are in the folder that contains Hello.class.", cmd: W("cd", "pwd") },
+          { t: "Run the class name only, with the same capital letters, and without .java or .class.", cmd: "java Hello" },
+          { t: "Check the main method is written exactly like this.", snippet: "public static void main(String[] args)" },
+          { t: "If the file starts with a line such as package lab1;, run it from the parent folder using the full name (for example java lab1.Hello), or remove the package line in simple lab exercises." }
+        ],
+        verify: "The program starts and prints its output."
+      },
+      {
+        id: "java-npe", langs: ["java"], group: "code",
+        title: "NullPointerException",
+        sig: "Exception in thread \"main\" java.lang.NullPointerException",
+        keys: "nullpointerexception null pointer exception object variable not initialised array of objects",
+        why: "You used an object variable that does not point to an object (its value is null).",
+        steps: [
+          { t: "Read the stack trace. Find the first line that names your own file and a line number, for example Main.java:7." },
+          { t: "On that line, find which variable is null. Print it, or check it in the debugger." },
+          { t: "Give it a value before you use it. An array of objects starts with every item null.", snippet: "String text = null;\nSystem.out.println(text.length());   // NullPointerException\n\nString text2 = \"hello\";\nSystem.out.println(text2.length());  // 5" },
+          { t: "If a value might be missing, check first.", snippet: "if (name != null) {\n    System.out.println(name.length());\n}" }
+        ],
+        verify: "The program runs past that line without an exception."
+      },
+      {
+        id: "java-aioobe", langs: ["java"], group: "code",
+        title: "ArrayIndexOutOfBoundsException",
+        sig: "java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5",
+        keys: "arrayindexoutofboundsexception array index out of bounds length loop exception",
+        why: "You asked for a position in an array that does not exist. The message gives the index you used and the array’s length.",
+        steps: [
+          { t: "Arrays start at 0. An array of length 5 has positions 0 to 4, and the last item is at length minus 1." },
+          { t: "Loop with < and the array’s length, not <= or a fixed number.", snippet: "int[] nums = {4, 8, 15, 16, 23};\nfor (int i = 0; i < nums.length; i++) {\n    System.out.println(nums[i]);\n}" },
+          { t: "Check the index you use (for example i + 1 or i - 1) never goes below 0 or up to the length." }
+        ],
+        verify: "The loop runs through the whole array without an exception."
+      },
+      {
+        id: "java-scanner", langs: ["java"], group: "code",
+        title: "Scanner problems: InputMismatchException or a skipped line",
+        sig: "java.util.InputMismatchException",
+        keys: "scanner inputmismatchexception nextint nextline skipped input read keyboard",
+        why: "The Scanner method does not match what was typed, or nextInt() left the end of the line behind, so the next nextLine() reads an empty line.",
+        steps: [
+          { t: "Use the method that matches the type: nextInt() for whole numbers, nextDouble() for decimals, next() for one word, nextLine() for a whole line." },
+          { t: "After nextInt() or nextDouble(), call nextLine() once to clear the end of the line before you read text.", snippet: "Scanner in = new Scanner(System.in);\nint age = in.nextInt();\nin.nextLine();                  // clears the end of the line\nString name = in.nextLine();" },
+          { t: "Check the input before reading it, if the user might type the wrong thing.", snippet: "if (in.hasNextInt()) {\n    int n = in.nextInt();\n}" }
+        ],
+        verify: "The program reads each value correctly and does not skip a question."
+      },
+      {
+        id: "java-equals", langs: ["java"], group: "code",
+        title: "My if on text is wrong (== instead of equals)",
+        sig: "if (answer == \"yes\") is never true",
+        keys: "string compare equals == text if condition never true equalsignorecase",
+        why: "In Java, == checks whether two String variables are the same object, not whether they contain the same text. Use equals() to compare the text.",
+        steps: [
+          { t: "Compare text with equals().", snippet: "if (answer.equals(\"yes\")) {\n    System.out.println(\"Confirmed\");\n}" },
+          { t: "To ignore capital letters, use equalsIgnoreCase().", snippet: "if (answer.equalsIgnoreCase(\"yes\")) { ... }" },
+          { t: "If answer might be null, put the fixed text first.", snippet: "if (\"yes\".equals(answer)) { ... }" }
+        ],
+        verify: "The condition is true when the text matches."
+      },
+      {
+        id: "java-return", langs: ["java"], group: "code",
+        title: "missing return statement",
+        sig: "error: missing return statement",
+        keys: "missing return statement method value if else path compile",
+        why: "A method that promises to return a value has a path through the code that ends without returning anything.",
+        steps: [
+          { t: "Check that every path through the method ends with a return, including the else case.", snippet: "static String grade(int mark) {\n    if (mark >= 50) {\n        return \"Pass\";\n    } else {\n        return \"Fail\";\n    }\n}" },
+          { t: "If the method should not return anything, change its return type to void and remove the return value." }
+        ],
+        verify: "The method compiles and returns a value on every path."
+      },
+      {
+        id: "loop-java", langs: ["java"], group: "code",
+        title: "My program never stops (infinite loop)",
+        sig: "Terminal keeps running or repeating",
+        keys: "infinite loop never stops freezes while true hang keeps running for loop",
+        why: "The condition of a loop never becomes false, so the loop repeats forever.",
+        steps: [
+          { t: "Stop the program: click in the terminal and press Ctrl+C." },
+          { t: "Look at the loop condition. Something inside the loop must change the values it checks.", snippet: "int count = 0;\nwhile (count < 5) {\n    System.out.println(count);\n    count++;   // without this line the loop never ends\n}" },
+          { t: "Check that you wrote == (compare) and not = (assign) inside conditions." }
+        ],
+        verify: "The program finishes by itself."
+      }
+    ];
+
+    var state = { os: "win", view: "home", lang: null, issue: null, ticks: {} };
+    var app = document.getElementById("app");
+    var breadcrumb = document.getElementById("breadcrumb");
+
+    function makeElement(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) {
+        el.className = className;
+      }
+      if (text) {
+        el.textContent = text;
+      }
+      return el;
+    }
+
+    function makeButton(className, text, onClick) {
+      var button = makeElement("button", className, text);
+      button.type = "button";
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    function copyText(text, button) {
+      var oldText = button.textContent;
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.className = "hidden-text";
+      document.body.appendChild(textarea);
+      textarea.select();
+      var worked = false;
+      try {
+        worked = document.execCommand("copy");
+      } catch (e) {
+        worked = false;
+      }
+      document.body.removeChild(textarea);
+      button.textContent = worked ? "Copied" : "Select and copy";
+      setTimeout(function () {
+        button.textContent = oldText;
+      }, 1600);
+    }
+
+    function makeCodeBlock(text) {
+      var box = makeElement("div", "code");
+      var pre = makeElement("pre");
+      pre.appendChild(makeElement("code", "", text));
+      var button = makeButton("", "Copy", function () {
+        copyText(text, button);
+      });
+      box.appendChild(pre);
+      box.appendChild(button);
+      return box;
+    }
+
+    function getCommand(step) {
+      if (!step.cmd) {
+        return null;
+      }
+      if (typeof step.cmd === "string") {
+        return step.cmd;
+      }
+      return step.cmd[state.os] || null;
+    }
+
+    function findLang(id) {
+      for (var i = 0; i < LANGS.length; i++) {
+        if (LANGS[i].id === id) {
+          return LANGS[i];
+        }
+      }
+    }
+
+    function findIssue(id) {
+      for (var i = 0; i < ISSUES.length; i++) {
+        if (ISSUES[i].id === id) {
+          return ISSUES[i];
+        }
+      }
+    }
+
+    function issuesForLang(langId) {
+      var list = [];
+      for (var i = 0; i < ISSUES.length; i++) {
+        if (ISSUES[i].langs.indexOf(langId) !== -1) {
+          list.push(ISSUES[i]);
+        }
+      }
+      return list;
+    }
+
+    function langNames(issue) {
+      var names = [];
+      for (var i = 0; i < issue.langs.length; i++) {
+        names.push(findLang(issue.langs[i]).name);
+      }
+      return names.join(", ");
+    }
+
+    // a step is shown only for the chosen system and language
+    function stepIsShown(step) {
+      if (step.os && step.os !== state.os) {
+        return false;
+      }
+      if (step.lang && state.lang && step.lang !== state.lang) {
+        return false;
+      }
+      return true;
+    }
+
+    function goTo(view, lang, issue) {
+      state.view = view;
+      state.lang = lang || null;
+      state.issue = issue || null;
+      showView();
+      window.scrollTo(0, 0);
+    }
+
+    // the line of links at the top (Start > Python > Steps)
+    function showBreadcrumb() {
+      breadcrumb.innerHTML = "";
+
+      if (state.view === "home") {
+        breadcrumb.appendChild(makeElement("span", "here", "Start"));
+      } else {
+        breadcrumb.appendChild(makeButton("", "Start", function () {
+          goTo("home");
+        }));
+      }
+
+      if (state.lang) {
+        var lang = findLang(state.lang);
+        breadcrumb.appendChild(document.createTextNode("›"));
+        if (state.view === "lang") {
+          breadcrumb.appendChild(makeElement("span", "here", lang.name));
+        } else {
+          breadcrumb.appendChild(makeButton("", lang.name, function () {
+            goTo("lang", state.lang);
+          }));
+        }
+      }
+
+      if (state.issue) {
+        breadcrumb.appendChild(document.createTextNode("›"));
+        if (state.view === "issue") {
+          breadcrumb.appendChild(makeElement("span", "here", "Steps"));
+        } else {
+          breadcrumb.appendChild(makeButton("", "Steps", function () {
+            goTo("issue", state.lang, state.issue);
+          }));
+        }
+        if (state.view === "help") {
+          breadcrumb.appendChild(document.createTextNode("›"));
+          breadcrumb.appendChild(makeElement("span", "here", "Ask for help"));
+        }
+      }
+    }
+
+    // a big button for one problem
+    function makeProblemButton(issue, langId, small) {
+      var button = makeElement("button", small ? "choice small" : "choice");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        goTo("issue", langId, issue.id);
+      });
+      button.appendChild(makeElement("span", "choice-title", issue.title));
+      if (!small) {
+        button.appendChild(makeElement("span", "signature", issue.sig));
+      }
+      return button;
+    }
+
+    function makeHomeView() {
+      var panel = makeElement("div", "panel");
+      panel.appendChild(makeElement("h2", "", "What is going wrong?"));
+      panel.appendChild(makeElement("p", "lead", "Search for your error message, or choose your programming language."));
+
+      var searchBox = makeElement("input", "search-box");
+      searchBox.type = "search";
+      searchBox.id = "searchBox";
+      searchBox.placeholder = "Type words from your error, e.g. cannot find symbol";
+      searchBox.autocomplete = "off";
+      var results = makeElement("ul", "results");
+
+      searchBox.addEventListener("input", function () {
+        var words = searchBox.value.toLowerCase().split(" ");
+        results.innerHTML = "";
+        var hits = [];
+
+        if (searchBox.value.trim() === "") {
+          return;
+        }
+
+        for (var i = 0; i < ISSUES.length; i++) {
+          var issue = ISSUES[i];
+          var text = (issue.title + " " + issue.sig + " " + issue.keys + " " + issue.why + " " + langNames(issue)).toLowerCase();
+          var matches = true;
+          for (var w = 0; w < words.length; w++) {
+            if (words[w] !== "" && text.indexOf(words[w]) === -1) {
+              matches = false;
+            }
+          }
+          if (matches && hits.length < 8) {
+            hits.push(issue);
+          }
+        }
+
+        if (hits.length === 0) {
+          results.appendChild(makeElement("li", "step-note", "No match. Choose your language below, or ask a lab assistant and show them the full error message."));
+          return;
+        }
+
+        for (var h = 0; h < hits.length; h++) {
+          results.appendChild(makeSearchResult(hits[h]));
+        }
+      });
+
+      panel.appendChild(searchBox);
+      panel.appendChild(results);
+
+      var languageBox = makeElement("div", "choices two");
+      var topicBox = makeElement("div", "choices two");
+      for (var i = 0; i < LANGS.length; i++) {
+        var box = (LANGS[i].kind === "language") ? languageBox : topicBox;
+        box.appendChild(makeLangButton(LANGS[i]));
+      }
+
+      panel.appendChild(makeElement("h3", "", "Choose your language"));
+      panel.appendChild(languageBox);
+      panel.appendChild(makeElement("h3", "", "Or choose a topic that applies to every language"));
+      panel.appendChild(topicBox);
+      return panel;
+    }
+
+    function makeSearchResult(issue) {
+      var li = makeElement("li");
+      var button = makeElement("button", "choice small");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        goTo("issue", issue.langs[0], issue.id);
+      });
+      button.appendChild(makeElement("span", "choice-title", issue.title));
+      button.appendChild(makeElement("span", "choice-desc", langNames(issue)));
+      button.appendChild(makeElement("span", "signature", issue.sig));
+      li.appendChild(button);
+      return li;
+    }
+
+    function makeLangButton(lang) {
+      var button = makeElement("button", "choice");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        goTo("lang", lang.id);
+      });
+      button.appendChild(makeElement("span", "choice-title", lang.name));
+      button.appendChild(makeElement("span", "choice-desc", lang.blurb));
+      return button;
+    }
+
+    // the list of problems for one language or topic
+    function makeLangView() {
+      var lang = findLang(state.lang);
+      var panel = makeElement("div", "panel");
+      panel.appendChild(makeElement("h2", "", lang.name));
+      panel.appendChild(makeElement("p", "lead", "Choose the message or symptom that matches what you see."));
+
+      var list = issuesForLang(lang.id);
+
+      if (lang.kind === "language") {
+        for (var g = 0; g < GROUPS.length; g++) {
+          var box = makeElement("div", "choices");
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].group === GROUPS[g].id) {
+              box.appendChild(makeProblemButton(list[i], lang.id, false));
+            }
+          }
+          if (box.childNodes.length > 0) {
+            panel.appendChild(makeElement("h3", "", GROUPS[g].name));
+            panel.appendChild(box);
+          }
+        }
+      } else {
+        var allBox = makeElement("div", "choices");
+        for (var j = 0; j < list.length; j++) {
+          allBox.appendChild(makeProblemButton(list[j], lang.id, false));
+        }
+        panel.appendChild(allBox);
+      }
+      return panel;
+    }
+
+    // the steps for one problem
+    function makeIssueView() {
+      var issue = findIssue(state.issue);
+      if (!state.ticks[issue.id]) {
+        state.ticks[issue.id] = {};
+      }
+      var ticks = state.ticks[issue.id];
+
+      var steps = makeElement("ol", "steps");
+      var number = 0;
+      for (var i = 0; i < issue.steps.length; i++) {
+        if (stepIsShown(issue.steps[i])) {
+          number++;
+          steps.appendChild(makeStep(issue.steps[i], i, number, ticks));
+        }
+      }
+
+      var panel = makeElement("div", "panel");
+      panel.appendChild(makeElement("h2", "", issue.title));
+      var signature = makeElement("p", "signature", issue.sig);
+      signature.style.margin = "0 0 14px";
+      panel.appendChild(signature);
+
+      if (issue.onlyWin && state.os === "mac") {
+        panel.appendChild(makeElement("p", "note", "This problem usually only happens on Windows. On Mac or Linux, you are more likely to need a different guide entry."));
+      }
+
+      var meansHeading = makeElement("h3", "", "What this usually means");
+      meansHeading.style.marginTop = "0";
+      panel.appendChild(meansHeading);
+      panel.appendChild(makeElement("p", "why", issue.why));
+      panel.appendChild(makeElement("h3", "", "Try these steps in order"));
+      panel.appendChild(steps);
+
+      var verify = makeElement("div", "verify");
+      verify.appendChild(makeElement("strong", "", "How to check it worked"));
+      verify.appendChild(document.createTextNode(issue.verify));
+      panel.appendChild(verify);
+
+      // "Did that fix it?" buttons
+      var ask = makeElement("div", "ask");
+      var askHeading = makeElement("h3", "", "Did that fix it?");
+      askHeading.style.marginTop = "0";
+      ask.appendChild(askHeading);
+
+      var fixedBox = makeElement("div");
+      var yesButton = makeButton("btn good", "Yes, it is fixed", function () {
+        showFixedMessage(fixedBox);
+      });
+      var noButton = makeButton("btn primary", "No, I am still stuck", function () {
+        goTo("help", state.lang, state.issue);
+      });
+      var row = makeElement("div", "row");
+      row.appendChild(yesButton);
+      row.appendChild(noButton);
+      ask.appendChild(row);
+      ask.appendChild(fixedBox);
+      panel.appendChild(ask);
+
+      // other problems in the same group
+      var related = makeElement("div", "choices");
+      var others = issuesForLang(state.lang);
+      for (var k = 0; k < others.length; k++) {
+        if (others[k].id !== issue.id && others[k].group === issue.group) {
+          related.appendChild(makeProblemButton(others[k], state.lang, true));
+        }
+      }
+      if (related.childNodes.length > 0) {
+        panel.appendChild(makeElement("h3", "", "Other problems like this"));
+        panel.appendChild(related);
+      }
+      return panel;
+    }
+
+    function makeStep(step, index, number, ticks) {
+      var li = makeElement("li");
+      if (ticks[index]) {
+        li.className = "done";
+      }
+      li.appendChild(makeElement("div", "step-number", String(number)));
+
+      var text = makeElement("div", "step-text");
+      text.appendChild(makeElement("div", "", step.t));
+
+      var command = getCommand(step);
+      if (command) {
+        text.appendChild(makeCodeBlock(command));
+      }
+      if (step.snippet) {
+        text.appendChild(makeCodeBlock(step.snippet));
+      }
+      if (step.note) {
+        text.appendChild(makeElement("p", "step-note", step.note));
+      }
+
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "tick" + index;
+      checkbox.checked = !!ticks[index];
+      checkbox.addEventListener("change", function () {
+        ticks[index] = checkbox.checked;
+        li.className = checkbox.checked ? "done" : "";
+      });
+
+      var label = makeElement("label", "tick-label");
+      label.setAttribute("for", "tick" + index);
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode("I have done this step"));
+      text.appendChild(label);
+
+      li.appendChild(text);
+      return li;
+    }
+
+    function showFixedMessage(box) {
+      box.innerHTML = "";
+      var message = makeElement("div", "good-message");
+      message.appendChild(makeElement("strong", "", "Well done. "));
+      message.appendChild(document.createTextNode("Carry on with your lab. If the problem comes back, start again from the beginning."));
+      var row = makeElement("div", "row");
+      row.appendChild(makeButton("btn", "Start again", function () {
+        goTo("home");
+      }));
+      message.appendChild(row);
+      box.appendChild(message);
+    }
+
+    // the "ask for help" page with a note to copy
+    function makeHelpView() {
+      var issue = findIssue(state.issue);
+      var ticks = state.ticks[issue.id] || {};
+
+      var tried = [];
+      for (var i = 0; i < issue.steps.length; i++) {
+        if (stepIsShown(issue.steps[i]) && ticks[i]) {
+          tried.push("- " + issue.steps[i].t);
+        }
+      }
+
+      var noteText = "Language or topic: " + findLang(state.lang).name + "\n";
+      noteText += "Problem: " + issue.title + "\n";
+      noteText += "Exact error message (copy and paste it, do not retype it):\n\n\n";
+      noteText += "What I was trying to do:\n\n\n";
+      noteText += "What I already tried:\n" + (tried.length > 0 ? tried.join("\n") : "- ") + "\n\n";
+      noteText += "Computer: " + (state.os === "win" ? "Windows" : "Mac or Linux") + "\n";
+      noteText += "Compiler or interpreter version (from the version command):\n";
+
+      var textarea = makeElement("textarea", "help-note");
+      textarea.id = "helpNote";
+      textarea.value = noteText;
+
+      var copyButton = makeButton("btn primary", "Copy help note", function () {
+        copyText(textarea.value, copyButton);
+      });
+
+      var panel = makeElement("div", "panel");
+      panel.appendChild(makeElement("h2", "", "Ask for help"));
+      panel.appendChild(makeElement("p", "lead", "That is fine. Lab assistants and lecturers can help fastest when you bring clear details. Do not include passwords, tokens or personal information."));
+
+      var points = makeElement("ul", "plain-list");
+      points.appendChild(makeElement("li", "", "The exact error message, copied and pasted."));
+      points.appendChild(makeElement("li", "", "What you were trying to do when it happened."));
+      points.appendChild(makeElement("li", "", "Which steps from this guide you already tried."));
+      points.appendChild(makeElement("li", "", "Your operating system and your compiler or interpreter version."));
+      panel.appendChild(points);
+
+      panel.appendChild(makeElement("h3", "", "Help note"));
+      panel.appendChild(makeElement("p", "step-note", "Fill this in, copy it, and show or send it to staff."));
+      panel.appendChild(textarea);
+
+      var row = makeElement("div", "row");
+      row.appendChild(copyButton);
+      row.appendChild(makeButton("btn", "Back to the steps", function () {
+        goTo("issue", state.lang, state.issue);
+      }));
+      row.appendChild(makeButton("btn", "Try a different problem", function () {
+        goTo("home");
+      }));
+      panel.appendChild(row);
+      return panel;
+    }
+
+    function showView() {
+      showBreadcrumb();
+      app.innerHTML = "";
+      if (state.view === "home") {
+        app.appendChild(makeHomeView());
+      } else if (state.view === "lang") {
+        app.appendChild(makeLangView());
+      } else if (state.view === "issue") {
+        app.appendChild(makeIssueView());
+      } else {
+        app.appendChild(makeHelpView());
+      }
+    }
+
+    // Windows / Mac switch
+    var winButton = document.getElementById("winButton");
+    var macButton = document.getElementById("macButton");
+
+    function setOs(os) {
+      state.os = os;
+      winButton.className = (os === "win") ? "on" : "";
+      macButton.className = (os === "mac") ? "on" : "";
+      if (state.view === "issue") {
+        showView();
+      }
+    }
+
+    winButton.addEventListener("click", function () { setOs("win"); });
+    macButton.addEventListener("click", function () { setOs("mac"); });
+
+    showView();
+  </script>
+</body>
+</html>
