@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Lab Preparation Checklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: #f3f5f8;
+      --card-bg: #ffffff;
+      --text: #14212e;
+      --text-light: #52606d;
+      --border: #d9e0e7;
+      --main: #1b7d44;
+      --code-bg: #0f2233;
+      --code-text: #e8f0f5;
+      --good: #17695a;
+      --good-bg: #e1f1ed;
+      --bad: #a8231b;
+      --bad-bg: #fbeae8;
+    }
+
+    /* dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #0e1822;
+        --card-bg: #16232f;
+        --text: #e8eff5;
+        --text-light: #a1b2c0;
+        --border: #2b3b49;
+        --good: #5cc7b0;
+        --good-bg: #123a33;
+        --bad: #ff9d93;
+        --bad-bg: #3b1f1c;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: "Atkinson Hyperlegible", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .wrapper { max-width: 820px; margin: 0 auto; padding: 0 16px 40px; }
+
+    /* coloured header */
+    .header {
+      background: linear-gradient(120deg, #14582f, #1b7d44);
+      color: white;
+      border-bottom: 8px solid #8cc63f;
+      border-radius: 0 0 18px 18px;
+      padding: 26px 22px 22px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin: 0 -16px;
+    }
+    .badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      background: white;
+      color: #1b7d44;
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      border: 4px solid #8cc63f;
+    }
+    .header h1 { margin: 0; font-size: 1.8rem; line-height: 1.15; }
+    .header p { margin: 6px 0 0; }
+
+    /* settings and progress */
+    .settings {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-top: 18px;
+    }
+    .setting-row { display: flex; flex-wrap: wrap; gap: 14px 26px; }
+    .setting-label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px; }
+
+    .toggle { display: inline-flex; border: 2px solid var(--main); border-radius: 10px; overflow: hidden; }
+    .toggle button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 7px 14px;
+      border: none;
+      background: none;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .toggle button.on { background: var(--main); color: white; font-weight: bold; }
+
+    .progress { margin-top: 16px; }
+    .progress-text { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px; }
+    .progress-track { height: 16px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--main), #8cc63f);
+      transition: width 0.25s;
+    }
+
+    .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .button {
+      font-family: inherit;
+      font-weight: bold;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 2px solid var(--main);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .button.filled { background: var(--main); color: white; }
+    button:focus, input:focus { outline: 3px solid #8ab4f8; outline-offset: 2px; }
+
+    .tip {
+      margin: 14px 0 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(140, 198, 63, 0.18);
+      font-size: 0.95rem;
+    }
+
+    .done-message {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: var(--good-bg);
+      border-left: 8px solid var(--good);
+      font-weight: bold;
+    }
+
+    /* one card for each section */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-top: 7px solid var(--section-color);
+      border-radius: 14px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(128, 128, 128, 0.1);
+    }
+    .section-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--section-color);
+      color: var(--section-text);
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 1.15rem;
+    }
+    .section-title h2 { margin: 0; font-size: 1.2rem; line-height: 1.2; }
+    .section-title p { margin: 2px 0 0; color: var(--text-light); font-size: 0.93rem; }
+    .section-count {
+      margin-left: auto;
+      font-weight: bold;
+      background: var(--section-color);
+      color: var(--section-text);
+      border-radius: 999px;
+      padding: 3px 13px;
+      font-size: 0.9rem;
+    }
+
+    .items { list-style: none; margin: 0; padding: 0; }
+    .item { padding: 14px 18px; border-top: 1px solid var(--border); }
+    .item-top { display: flex; gap: 12px; align-items: flex-start; }
+    .item-top input { width: 24px; height: 24px; margin-top: 2px; accent-color: var(--section-color); }
+    .item-title { font-weight: bold; cursor: pointer; }
+    .item.done .item-title { text-decoration: line-through; color: var(--text-light); }
+    .item-body { margin: 6px 0 0 36px; }
+    .item-text { margin: 0 0 6px; color: var(--text-light); }
+
+    .code {
+      position: relative;
+      margin: 8px 0;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 8px;
+      padding: 10px 78px 10px 12px;
+      border-left: 5px solid var(--section-color);
+    }
+    .code pre {
+      margin: 0;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .code button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid #5d7387;
+      background: none;
+      color: var(--code-text);
+      cursor: pointer;
+    }
+
+    .expect, .fail { margin: 6px 0 0; padding: 6px 10px; border-radius: 8px; font-size: 0.93rem; }
+    .expect { background: var(--good-bg); }
+    .fail { background: var(--bad-bg); }
+
+    .footer { margin-top: 22px; font-size: 0.88rem; color: var(--text-light); }
+    .hidden-text { position: absolute; left: -9999px; }
+
+    @media (max-width: 560px) {
+      .header { flex-direction: column; align-items: flex-start; }
+      .item-body { margin-left: 0; }
+    }
+
+    @media print {
+      .setting-row, .buttons, .code button, .tip { display: none !important; }
+      body { background: white; color: black; }
+      .card, .item { break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="badge">Java</div>
+      <div>
+        <h1>Java Lab Preparation Checklist</h1>
+        <p>Install, set up, compile and run Java in VS Code, step by step.</p>
+      </div>
+    </div>
+
+    <div class="settings">
+      <div class="setting-row">
+        <div>
+          <span class="setting-label">I am using</span>
+          <div class="toggle">
+            <button type="button" id="ownButton" class="on">My own laptop</button>
+            <button type="button" id="labButton">A lab computer</button>
+          </div>
+        </div>
+        <div>
+          <span class="setting-label">Operating system</span>
+          <div class="toggle">
+            <button type="button" id="winButton" class="on">Windows</button>
+            <button type="button" id="macButton">Mac or Linux</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress">
+        <div class="progress-text"><span id="progressText">0 of 0 done</span><span id="progressPercent">0%</span></div>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+
+      <div class="buttons">
+        <button type="button" class="button filled" id="printButton">Print or save as PDF</button>
+        <button type="button" class="button" id="resetButton">Reset ticks</button>
+      </div>
+
+      <p class="tip">Own laptop: do every step. Lab computer: do not install software. Only run the checks and ask a lab assistant if one fails.</p>
+    </div>
+
+    <div class="done-message" id="doneMessage">All done. You are ready for the lab!</div>
+
+    <div id="list"></div>
+
+    <div class="footer">Prepared by Tharundi Dunuwila.</div>
+  </div>
+
+  <script>
+    // To add a step, copy one item, paste it in a section and change the text.
+    // "who" can be "own" or "lab" to show a step only for that kind of computer.
+    // "cmd" can be one text, or {win: "...", mac: "..."} for different systems.
+    var DATA = {
+      "colors": [
+        [
+          "#1b7d44",
+          "#ffffff"
+        ],
+        [
+          "#8cc63f",
+          "#1a2a00"
+        ],
+        [
+          "#b02a5b",
+          "#ffffff"
+        ],
+        [
+          "#4b5563",
+          "#ffffff"
+        ]
+      ],
+      "sections": [
+        {
+          "title": "Install",
+          "sub": "Get the tools on your computer",
+          "items": [
+            {
+              "id": "j-i1",
+              "t": "Install a JDK (Java Development Kit)",
+              "who": "own",
+              "d": "Install a JDK, for example Eclipse Temurin from adoptium.net, using the version your lab asks for. On Windows, keep the options that add Java to PATH and set JAVA_HOME. On Mac, use the installer. On Debian or Ubuntu Linux, run: sudo apt install default-jdk"
+            },
+            {
+              "id": "j-i2",
+              "t": "Java and the Java compiler are found",
+              "cmd": "java -version\njavac -version",
+              "d": "On a lab computer, do not install anything. If this fails, ask a lab assistant.",
+              "expect": "Both commands print a version, and the main version number matches",
+              "fail": "javac or java is not recognised"
+            },
+            {
+              "id": "j-i3",
+              "t": "Visual Studio Code is installed and opens",
+              "d": "On your own laptop, download it from code.visualstudio.com. On a lab computer, just check that it opens.",
+              "expect": "The VS Code window opens"
+            }
+          ]
+        },
+        {
+          "title": "Set up",
+          "sub": "Get VS Code and Git ready",
+          "items": [
+            {
+              "id": "j-s1",
+              "t": "Install the Extension Pack for Java in VS Code",
+              "d": "Open Extensions (Ctrl+Shift+X, or Cmd+Shift+X), search for “Extension Pack for Java” and install the one published by Microsoft.",
+              "expect": "The extension pack shows as Installed",
+              "fail": "Java will not run in VS Code"
+            },
+            {
+              "id": "j-s2",
+              "t": "Make a project folder and open it",
+              "cmd": "mkdir Lab-Java",
+              "d": "In VS Code choose File, then Open Folder, and pick Lab-Java. Avoid spaces in folder names.",
+              "expect": "The folder name appears in the Explorer panel"
+            },
+            {
+              "id": "j-s3",
+              "t": "Let the Java extension finish loading",
+              "d": "Open a .java file and wait until the loading spinner at the bottom of VS Code stops.",
+              "expect": "Run and Debug links appear above the main method",
+              "fail": "Java will not run in VS Code"
+            },
+            {
+              "id": "j-g1",
+              "t": "Git is installed",
+              "cmd": "git --version",
+              "d": "On your own laptop, install Git from git-scm.com with the default options. On a lab computer, only check it.",
+              "expect": "A message such as git version 2.xx",
+              "fail": "git is not recognised"
+            },
+            {
+              "id": "j-g2",
+              "t": "Your name and email are set in Git",
+              "cmd": "git config --global user.name \"Your Name\"\ngit config --global user.email \"you@example.com\"",
+              "d": "On a shared lab computer, leave out --global and run the commands inside your project folder.",
+              "expect": "git config user.name prints your name",
+              "fail": "“Please tell me who you are” when committing"
+            },
+            {
+              "id": "j-g3",
+              "t": "Your GitHub account works",
+              "d": "Sign in at github.com. Create a free account if you do not have one.",
+              "expect": "You can see your GitHub dashboard"
+            },
+            {
+              "id": "j-g4",
+              "t": "Practise the save routine once",
+              "cmd": "git init\ngit add .\ngit commit -m \"First commit\"",
+              "d": "Run these inside your project folder.",
+              "expect": "A message listing the files you committed",
+              "fail": "fatal: not a git repository"
+            }
+          ]
+        },
+        {
+          "title": "Run",
+          "sub": "Write, run and read your first program",
+          "items": [
+            {
+              "id": "j-r1",
+              "t": "Create Hello.java",
+              "d": "The file name must match the public class name exactly, including capital letters.",
+              "snip": "public class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, lab!\");\n    }\n}",
+              "fail": "class X is public, should be declared in a file named X.java"
+            },
+            {
+              "id": "j-r2",
+              "t": "Compile it",
+              "cmd": "javac Hello.java",
+              "expect": "No message, and a file called Hello.class appears",
+              "fail": "cannot find symbol"
+            },
+            {
+              "id": "j-r3",
+              "t": "Run it by its class name",
+              "cmd": "java Hello",
+              "d": "Use the class name only, without .java or .class.",
+              "expect": "Hello, lab!",
+              "fail": "Could not find or load main class"
+            },
+            {
+              "id": "j-r4",
+              "t": "Run it with the Run link in VS Code",
+              "d": "Click Run above public static void main, or the ▶ button at the top right.",
+              "expect": "Hello, lab! appears in the terminal"
+            },
+            {
+              "id": "j-r5",
+              "t": "Try the one-step shortcut",
+              "cmd": "java Hello.java",
+              "d": "Java 11 and later can run a single file without compiling first.",
+              "expect": "Hello, lab!"
+            },
+            {
+              "id": "j-r6",
+              "t": "Try reading input with Scanner",
+              "d": "Save this as Greet.java, then compile and run it.",
+              "snip": "import java.util.Scanner;\n\npublic class Greet {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        System.out.print(\"Your name: \");\n        String name = in.nextLine();\n        System.out.println(\"Hello, \" + name);\n    }\n}",
+              "fail": "Scanner problems: InputMismatchException or a skipped line"
+            },
+            {
+              "id": "j-r7",
+              "t": "Cause one error on purpose and read it",
+              "d": "Delete the semicolon after the println line in Hello.java, compile it, and read the file name and line number in the message. Then put it back.",
+              "expect": "error: ';' expected",
+              "fail": "‘;’ expected, or reached end of file while parsing"
+            }
+          ]
+        },
+        {
+          "title": "Basics",
+          "sub": "Habits that save time in every lab",
+          "items": [
+            {
+              "id": "j-b1",
+              "t": "Compile again after every change",
+              "d": "Saving the file does not update the .class file. Run javac again before java."
+            },
+            {
+              "id": "j-b2",
+              "t": "Keep one public class per file",
+              "d": "The file name must match the public class name."
+            },
+            {
+              "id": "j-b3",
+              "t": "Write the main method exactly",
+              "d": "public static void main(String[] args)"
+            },
+            {
+              "id": "j-b4",
+              "t": "Save before every run",
+              "d": "Press Ctrl+S (Cmd+S on Mac). A dot on the file’s tab means it has unsaved changes."
+            },
+            {
+              "id": "j-b5",
+              "t": "Read the error message from the right place",
+              "d": "Read the first error (or the last line for Python) and the file name and line number it gives."
+            },
+            {
+              "id": "j-b6",
+              "t": "Use clear file and folder names",
+              "d": "Use letters, numbers and underscores, with no spaces, for example lab1_loops."
+            },
+            {
+              "id": "j-b7",
+              "t": "Stop a running program",
+              "d": "Click in the terminal and press Ctrl+C."
+            },
+            {
+              "id": "j-b8",
+              "t": "Back up your work at the end of every lab",
+              "d": "Commit and push to GitHub, or copy the folder to cloud storage."
+            },
+            {
+              "id": "j-b9",
+              "t": "Ask for help with the exact message",
+              "d": "Copy and paste the full error, say what you tried, and look it up in the Lab Troubleshooter first."
+            }
+          ]
+        }
+      ]
+    };
+
+    var saveName = "labcheck-java";
+    var state = { os: "win", who: "own", ticks: {} };
+    var sectionInfo = [];
+
+    // load what was saved before
+    try {
+      var saved = JSON.parse(localStorage.getItem(saveName) || "{}");
+      if (saved.os) { state.os = saved.os; }
+      if (saved.who) { state.who = saved.who; }
+      if (saved.ticks) { state.ticks = saved.ticks; }
+    } catch (e) {
+      // saving is not allowed, carry on without it
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(saveName, JSON.stringify(state));
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    function makeElement(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) {
+        el.className = className;
+      }
+      if (text) {
+        el.textContent = text;
+      }
+      return el;
+    }
+
+    function copyText(text, button) {
+      var oldText = button.textContent;
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.className = "hidden-text";
+      document.body.appendChild(textarea);
+      textarea.select();
+      var worked = false;
+      try {
+        worked = document.execCommand("copy");
+      } catch (e) {
+        worked = false;
+      }
+      document.body.removeChild(textarea);
+      button.textContent = worked ? "Copied" : "Select and copy";
+      setTimeout(function () {
+        button.textContent = oldText;
+      }, 1600);
+    }
+
+    function makeCodeBlock(text) {
+      var box = makeElement("div", "code");
+      var pre = makeElement("pre");
+      pre.appendChild(makeElement("code", "", text));
+      var button = makeElement("button", "", "Copy");
+      button.type = "button";
+      button.addEventListener("click", function () {
+        copyText(text, button);
+      });
+      box.appendChild(pre);
+      box.appendChild(button);
+      return box;
+    }
+
+    function getCommand(item) {
+      if (!item.cmd) {
+        return null;
+      }
+      if (typeof item.cmd === "string") {
+        return item.cmd;
+      }
+      return item.cmd[state.os] || null;
+    }
+
+    function isShown(item) {
+      if (item.who && item.who !== state.who) {
+        return false;
+      }
+      return true;
+    }
+
+    function makeItem(item) {
+      var li = makeElement("li", "item");
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "box-" + item.id;
+      checkbox.checked = !!state.ticks[item.id];
+      if (checkbox.checked) {
+        li.className = "item done";
+      }
+
+      checkbox.addEventListener("change", function () {
+        if (checkbox.checked) {
+          state.ticks[item.id] = 1;
+          li.className = "item done";
+        } else {
+          delete state.ticks[item.id];
+          li.className = "item";
+        }
+        saveState();
+        updateProgress();
+      });
+
+      var label = makeElement("label", "item-title", item.t);
+      label.setAttribute("for", "box-" + item.id);
+
+      var top = makeElement("div", "item-top");
+      top.appendChild(checkbox);
+      top.appendChild(label);
+      li.appendChild(top);
+
+      var body = makeElement("div", "item-body");
+      if (item.d) {
+        body.appendChild(makeElement("p", "item-text", item.d));
+      }
+      var command = getCommand(item);
+      if (command) {
+        body.appendChild(makeCodeBlock(command));
+      }
+      if (item.snip) {
+        body.appendChild(makeCodeBlock(item.snip));
+      }
+      if (item.expect) {
+        var expect = makeElement("p", "expect");
+        expect.appendChild(makeElement("strong", "", "You should see: "));
+        expect.appendChild(document.createTextNode(item.expect));
+        body.appendChild(expect);
+      }
+      if (item.fail) {
+        var fail = makeElement("p", "fail");
+        fail.appendChild(makeElement("strong", "", "If it fails: "));
+        fail.appendChild(document.createTextNode(item.fail));
+        body.appendChild(fail);
+      }
+      if (body.childNodes.length > 0) {
+        li.appendChild(body);
+      }
+      return li;
+    }
+
+    function showList() {
+      var list = document.getElementById("list");
+      list.innerHTML = "";
+      sectionInfo = [];
+
+      for (var s = 0; s < DATA.sections.length; s++) {
+        var section = DATA.sections[s];
+        var colors = DATA.colors[s % DATA.colors.length];
+
+        var card = makeElement("div", "card");
+        card.style.setProperty("--section-color", colors[0]);
+        card.style.setProperty("--section-text", colors[1]);
+
+        var count = makeElement("span", "section-count");
+        var title = makeElement("div", "section-title");
+        title.appendChild(makeElement("h2", "", section.title));
+        title.appendChild(makeElement("p", "", section.sub));
+
+        var header = makeElement("div", "card-header");
+        header.appendChild(makeElement("span", "section-number", String(s + 1)));
+        header.appendChild(title);
+        header.appendChild(count);
+        card.appendChild(header);
+
+        var ul = makeElement("ul", "items");
+        var ids = [];
+        for (var i = 0; i < section.items.length; i++) {
+          var item = section.items[i];
+          if (isShown(item)) {
+            ul.appendChild(makeItem(item));
+            ids.push(item.id);
+          }
+        }
+        card.appendChild(ul);
+        list.appendChild(card);
+        sectionInfo.push({ count: count, ids: ids });
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      var total = 0;
+      var done = 0;
+
+      for (var s = 0; s < sectionInfo.length; s++) {
+        var sectionDone = 0;
+        var ids = sectionInfo[s].ids;
+        for (var i = 0; i < ids.length; i++) {
+          if (state.ticks[ids[i]]) {
+            sectionDone++;
+          }
+        }
+        sectionInfo[s].count.textContent = sectionDone + " / " + ids.length;
+        total = total + ids.length;
+        done = done + sectionDone;
+      }
+
+      var percent = 0;
+      if (total > 0) {
+        percent = Math.round(done / total * 100);
+      }
+      document.getElementById("progressText").textContent = done + " of " + total + " done";
+      document.getElementById("progressPercent").textContent = percent + "%";
+      document.getElementById("progressBar").style.width = percent + "%";
+
+      if (total > 0 && done === total) {
+        document.getElementById("doneMessage").style.display = "block";
+      } else {
+        document.getElementById("doneMessage").style.display = "none";
+      }
+    }
+
+    // the two switches at the top
+    var ownButton = document.getElementById("ownButton");
+    var labButton = document.getElementById("labButton");
+    var winButton = document.getElementById("winButton");
+    var macButton = document.getElementById("macButton");
+
+    function showSwitches() {
+      ownButton.className = (state.who === "own") ? "on" : "";
+      labButton.className = (state.who === "lab") ? "on" : "";
+      winButton.className = (state.os === "win") ? "on" : "";
+      macButton.className = (state.os === "mac") ? "on" : "";
+    }
+
+    function setWho(value) {
+      state.who = value;
+      saveState();
+      showSwitches();
+      showList();
+    }
+
+    function setOs(value) {
+      state.os = value;
+      saveState();
+      showSwitches();
+      showList();
+    }
+
+    ownButton.addEventListener("click", function () { setWho("own"); });
+    labButton.addEventListener("click", function () { setWho("lab"); });
+    winButton.addEventListener("click", function () { setOs("win"); });
+    macButton.addEventListener("click", function () { setOs("mac"); });
+
+    document.getElementById("printButton").addEventListener("click", function () {
+      window.print();
+    });
+
+    // reset needs two clicks so it is not pressed by mistake
+    var resetButton = document.getElementById("resetButton");
+    var resetTimer = null;
+
+    resetButton.addEventListener("click", function () {
+      if (resetTimer === null) {
+        resetButton.textContent = "Click again to confirm";
+        resetTimer = setTimeout(function () {
+          resetButton.textContent = "Reset ticks";
+          resetTimer = null;
+        }, 3000);
+        return;
+      }
+      clearTimeout(resetTimer);
+      resetTimer = null;
+      resetButton.textContent = "Reset ticks";
+      state.ticks = {};
+      saveState();
+      showList();
+    });
+
+    showSwitches();
+    showList();
+  </script>
+</body>
+</html>
