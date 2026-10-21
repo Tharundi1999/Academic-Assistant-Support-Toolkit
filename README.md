@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This repository contains seven interactive HTML-based resources developed as part of an Academic Assistant project at the University of Chester.
+This repository contains seven interactive HTML-based resources developed as part of a Master's-level Academic Assistant project in Advanced Computer Science. 
 
 The resources are designed to support computing lab sessions by helping students prepare their programming environments, identify common technical problems, and understand programming errors.
 
